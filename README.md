@@ -1,2 +1,4 @@
-# neko-cli
-small cli tool for release managment
+# Neko - CLI
+
+Small CLI tool for release management
+
