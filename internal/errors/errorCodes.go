@@ -15,4 +15,10 @@ const (
 	ErrAPIRequest  = "NEKO_2000"
 	ErrAPIResponse = "NEKO_2001"
 	ErrNoReleases  = "NEKO_2002"
+
+	ErrConfigExists    = "NEKO_3000"
+	ErrSurveyCancelled = "NEKO_3001"
+	ErrSurveyFailed    = "NEKO_3002"
+	ErrConfigMarshal   = "NEKO_3003"
+	ErrConfigWrite     = "NEKO_3004"
 )
