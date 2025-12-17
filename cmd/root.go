@@ -1,6 +1,9 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since      17.12.2025
 */
+
 package cmd
 
 import (
