@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -25,6 +26,9 @@ var serveCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "Error: port must be between 1 and 65535\n")
 			os.Exit(1)
 		}
+		command := exec.Command("git", "status")
+		output, _ := command.CombinedOutput()
+		fmt.Println(string(output))
 		if verbose {
 			fmt.Printf("Starting server on %s:%d\n", host, port)
 			fmt.Println("Verbose mode enabled")
