@@ -3,7 +3,7 @@ package check
 /*
 @Author     Benjamin Senekowitsch
 @Contact    senekowitsch@nekoman.at
-@Since     17.12.2025
+@Since      17.12.2025
 */
 
 import (
@@ -13,22 +13,24 @@ import (
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 )
 
-var semverRegex = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?(?:\+[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?$`)
+var semverRegex = regexp.MustCompile(
+	`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?(?:\+[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?$`,
+)
 
 func ValidateConfig(cfg *config.NekoConfig) {
-	if cfg.ProjectType == "" {
+	if !cfg.ProjectType.IsValid() {
 		errors.Error(
 			"Invalid configuration",
-			"ProjectType is missing in .neko.json",
+			"ProjectType is invalid in .neko.json",
 			errors.ErrConfigMarshal,
 		)
 		return
 	}
 
-	if cfg.ReleaseSystem == "" {
+	if !cfg.ReleaseSystem.IsValid() {
 		errors.Error(
 			"Invalid configuration",
-			"ReleaseSystem is missing in .neko.json",
+			"ReleaseSystem is invalid in .neko.json",
 			errors.ErrConfigMarshal,
 		)
 		return
@@ -41,7 +43,9 @@ func ValidateConfig(cfg *config.NekoConfig) {
 			errors.ErrConfigMarshal,
 		)
 		return
-	} else if !semverRegex.MatchString(cfg.Version) {
+	}
+
+	if !semverRegex.MatchString(cfg.Version) {
 		errors.Error(
 			"Invalid configuration",
 			"Version is not a valid semantic version (SemVer)",
