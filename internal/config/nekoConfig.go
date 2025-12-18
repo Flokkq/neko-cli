@@ -1,4 +1,4 @@
-package init
+package config
 
 type NekoConfig struct {
 	ProjectType   string `json:"projectType"`

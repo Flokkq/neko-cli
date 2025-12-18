@@ -32,11 +32,10 @@ Run the release process using the detected or configured tool.
 - `--dry-run` : simulate the release
 - `--push` : push changes and tags (Default)
 
-### `neko config`
-Show or edit the Neko configuration.  
+### `neko check`
+Show or validate the Neko configuration.  
 **Args / Flags:**
-- `--show` : display current configuration
-- `--edit` : open configuration in editor
+- `--config-show` : display current configuration
 
 ### `neko version`
 Show current version of this repo.  
@@ -50,7 +49,7 @@ Show release/tag history.
 Display current release status.  
 **Checks include:** git clean state, branch, version file, changelog status
 
-### `neko release-check`
+### `neko check-release`
 Validate whether the project is ready for release (pre-flight checks).
 
 

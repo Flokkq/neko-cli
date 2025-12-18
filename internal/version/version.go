@@ -1,5 +1,11 @@
 package version
 
+/*
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since     17.12.2025
+*/
+
 import (
 	"encoding/json"
 	"fmt"

@@ -1,10 +1,16 @@
 package init
 
+/*
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since     17.12.2025
+*/
+
 import (
-	"encoding/json"
 	"os"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 )
 
@@ -34,13 +40,13 @@ func Run() {
 		}
 	}
 
-	config := NekoConfig{}
+	configFile := config.NekoConfig{}
 
 	// Project type
 	if err := survey.AskOne(&survey.Select{
 		Message: "What kind of project is this?",
 		Options: []string{"Frontend", "Backend", "Other"},
-	}, &config.ProjectType); err != nil {
+	}, &configFile.ProjectType); err != nil {
 		errors.Error(
 			"Project type selection failed",
 			"Could not read project type input.",
@@ -52,8 +58,8 @@ func Run() {
 	// Release system
 	if err := survey.AskOne(&survey.Select{
 		Message: "Which release system should be used?",
-		Options: getReleaseOptions(config.ProjectType),
-	}, &config.ReleaseSystem); err != nil {
+		Options: getReleaseOptions(configFile.ProjectType),
+	}, &configFile.ReleaseSystem); err != nil {
 		errors.Error(
 			"Release system selection failed",
 			"Could not read release system input.",
@@ -67,7 +73,7 @@ func Run() {
 		Message: "Initial version:",
 		Default: "0.1.0",
 		Help:    "Semantic Versioning (MAJOR.MINOR.PATCH)",
-	}, &config.Version); err != nil {
+	}, &configFile.Version); err != nil {
 		errors.Error(
 			"Version input failed",
 			"Could not read version input.",
@@ -76,7 +82,7 @@ func Run() {
 		return
 	}
 
-	if err := saveConfig(config); err != nil {
+	if err := config.SaveConfig(configFile); err != nil {
 		errors.Fatal(
 			"Configuration write failed",
 			err.Error(),
@@ -85,7 +91,7 @@ func Run() {
 		return
 	}
 
-	printSetupInstructions(config)
+	printSetupInstructions(configFile)
 }
 
 func getReleaseOptions(projectType string) []string {
@@ -101,16 +107,7 @@ func getReleaseOptions(projectType string) []string {
 	}
 }
 
-func saveConfig(config NekoConfig) error {
-	data, err := json.MarshalIndent(config, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(".neko.json", data, 0644)
-}
-
-func printSetupInstructions(config NekoConfig) {
+func printSetupInstructions(config config.NekoConfig) {
 	println("\n✓ .neko.json created successfully\n")
 	println("Next steps:")
 	println("  • Use 'neko release' to create a release")

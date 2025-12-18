@@ -17,8 +17,10 @@ const (
 	ErrNoReleases  = "NEKO_2002"
 
 	ErrConfigExists    = "NEKO_3000"
-	ErrSurveyCancelled = "NEKO_3001"
-	ErrSurveyFailed    = "NEKO_3002"
-	ErrConfigMarshal   = "NEKO_3003"
-	ErrConfigWrite     = "NEKO_3004"
+	ErrConfigNotExists = "NEKO_3001"
+	ErrSurveyCancelled = "NEKO_3002"
+	ErrSurveyFailed    = "NEKO_3003"
+	ErrConfigMarshal   = "NEKO_3004"
+	ErrConfigWrite     = "NEKO_3005"
+	ErrConfigRead      = "NEKO_3006"
 )
