@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="v0.1.1"
+if [ ! -f .neko.json ]; then
+  echo "Error: .neko.json not found"
+  exit 1
+fi
+
+VERSION_RAW=$(jq -r '.version // empty' .neko.json)
+
+if [ -z "$VERSION_RAW" ]; then
+  echo "Error: version not found in .neko.json"
+  exit 1
+fi
+
+VERSION="v$VERSION_RAW"
 OS=$(uname -s)
 ARCH=$(uname -m)
 
