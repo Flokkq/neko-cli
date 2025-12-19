@@ -24,4 +24,8 @@ const (
 	ErrConfigWrite     = "NEKO_3005"
 	ErrConfigRead      = "NEKO_3006"
 	ErrInvalidVersion  = "NEKO_3007"
+
+	ErrInvalidReleaseType   = "NEKO_4000"
+	ErrInvalidReleaseSystem = "NEKO_4001"
+	ErrReleaseFailed        = "NEKO_4002"
 )
