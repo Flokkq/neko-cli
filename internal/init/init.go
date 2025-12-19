@@ -85,7 +85,7 @@ func Run() {
 		return
 	}
 
-	cfg.ReleaseSystem = config.ReleaseType(releaseTypeInput)
+	cfg.ReleaseSystem = config.ReleaseSystem(releaseTypeInput)
 	if !cfg.ReleaseSystem.IsValid() {
 		errors.Error(
 			"Invalid release system",

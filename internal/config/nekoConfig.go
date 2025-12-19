@@ -7,7 +7,7 @@ package config
 */
 
 type ProjectType string
-type ReleaseType string
+type ReleaseSystem string
 
 const (
 	ProjectTypeFrontend ProjectType = "frontend"
@@ -16,15 +16,15 @@ const (
 )
 
 const (
-	ReleaseTypeReleaseIt  ReleaseType = "release-it"
-	ReleaseTypeJReleaser  ReleaseType = "jreleaser"
-	ReleaseTypeGoReleaser ReleaseType = "goreleaser"
+	ReleaseTypeReleaseIt  ReleaseSystem = "release-it"
+	ReleaseTypeJReleaser  ReleaseSystem = "jreleaser"
+	ReleaseTypeGoReleaser ReleaseSystem = "goreleaser"
 )
 
 type NekoConfig struct {
-	ProjectType   ProjectType `json:"projectType"`
-	ReleaseSystem ReleaseType `json:"releaseSystem"`
-	Version       string      `json:"version"`
+	ProjectType   ProjectType   `json:"projectType"`
+	ReleaseSystem ReleaseSystem `json:"releaseSystem"`
+	Version       string        `json:"version"`
 }
 
 func (p ProjectType) IsValid() bool {
@@ -36,7 +36,7 @@ func (p ProjectType) IsValid() bool {
 	}
 }
 
-func (r ReleaseType) IsValid() bool {
+func (r ReleaseSystem) IsValid() bool {
 	switch r {
 	case ReleaseTypeReleaseIt, ReleaseTypeJReleaser, ReleaseTypeGoReleaser:
 		return true
