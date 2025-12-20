@@ -7,6 +7,7 @@ package git
 */
 
 import (
+	"fmt"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -74,4 +75,33 @@ func parseRemote(remoteOutput string) (*RepoInfo, error) {
 	)
 
 	return nil, nil // unreachable, but needed for compiler
+}
+
+func IsClean() error {
+	cmd := exec.Command("git", "status", "--porcelain")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("unable to check git status: %w", err)
+	}
+
+	if strings.TrimSpace(string(output)) != "" {
+		return fmt.Errorf("the working tree has uncommitted changes. Please commit or stash them")
+	}
+
+	return nil
+}
+
+func OnMainBranch() error {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("unable to determine current branch: %w", err)
+	}
+
+	branch := strings.TrimSpace(string(output))
+	if branch != "main" && branch != "master" {
+		return fmt.Errorf("you are on branch '%s'. Releases are only allowed from 'main' or 'master'", branch)
+	}
+
+	return nil
 }
