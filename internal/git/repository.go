@@ -1,4 +1,4 @@
-package repository
+package git
 
 /*
 @Author     Benjamin Senekowitsch
@@ -47,8 +47,8 @@ func Current() (*RepoInfo, error) {
 // parseRemote extracts owner and repo from git remote output
 func parseRemote(remoteOutput string) (*RepoInfo, error) {
 	// Regex patterns for both SSH and HTTPS URLs
-	// SSH: git@github.com:owner/repo.git
-	sshPattern := regexp.MustCompile(`git@github\.com:([^/]+)/([^/\s]+?)(?:\.git)?(?:\s|$)`)
+	// SSH: git@git.com:owner/repo.git
+	sshPattern := regexp.MustCompile(`git@git\.com:([^/]+)/([^/\s]+?)(?:\.git)?(?:\s|$)`)
 	// HTTPS: https://github.com/owner/repo.git
 	httpsPattern := regexp.MustCompile(`https://github\.com/([^/]+)/([^/\s]+?)(?:\.git)?(?:\s|$)`)
 

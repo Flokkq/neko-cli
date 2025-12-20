@@ -9,6 +9,6 @@ package tools
 import (
 	// Register all release tools
 	_ "github.com/nekoman-hq/neko-cli/internal/release/tools/goreleaser"
-	// _ "github.com/nekoman-hq/neko-cli/internal/release/semantic-release"
+	// _ "git.com/nekoman-hq/neko-cli/internal/release/semantic-release"
 	// More tools here
 )
