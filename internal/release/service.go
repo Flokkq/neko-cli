@@ -41,5 +41,12 @@ func (rs *Service) Run(args []string) error {
 		)
 	}
 
+	Preflight()
+
+	// Later:
+	// PreflightChecks(...)
+	// VersionHandling(...)
+	// TagHandling(...)
+
 	return releaser.Release(rt)
 }

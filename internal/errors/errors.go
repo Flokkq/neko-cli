@@ -66,7 +66,7 @@ func PrintError(err CLIError) {
 
 	fmt.Fprintln(os.Stderr)
 
-	if err.Level == ErrorLevelFatal {
+	if err.Level == ErrorLevelFatal || err.Level == ErrorLevelError {
 		os.Exit(1)
 	}
 }

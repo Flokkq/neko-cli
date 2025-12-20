@@ -7,10 +7,12 @@ package errors
 */
 
 const (
-	ErrMissingEnvVar = "NEKO_1000"
-	ErrNoGitRepo     = "NEKO_1001"
-	ErrNoRemote      = "NEKO_1002"
-	ErrInvalidRemote = "NEKO_1003"
+	ErrMissingEnvVar    = "NEKO_1000"
+	ErrNoGitRepo        = "NEKO_1001"
+	ErrNoRemote         = "NEKO_1002"
+	ErrInvalidRemote    = "NEKO_1003"
+	ErrDirtyWorkingTree = "NEKO_1004"
+	ErrWrongBranch      = "NEKO_1005"
 
 	ErrAPIRequest  = "NEKO_2000"
 	ErrAPIResponse = "NEKO_2001"
