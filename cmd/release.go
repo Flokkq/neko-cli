@@ -24,7 +24,6 @@ var releaseCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cfg := config.LoadConfig()
-		config.Validate(cfg)
 		_ = config.GetPAT()
 
 		tool, err := release.Get(string(cfg.ReleaseSystem))

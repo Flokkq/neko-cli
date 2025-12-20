@@ -43,6 +43,8 @@ func LoadConfig() *NekoConfig {
 		)
 	}
 
+	Validate(&config)
+
 	return &config
 }
 
