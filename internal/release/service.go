@@ -23,6 +23,8 @@ func NewReleaseService(cfg *config.NekoConfig) *Service {
 func (rs *Service) Run(args []string) error {
 	_, _ = git.Current()
 
+	Preflight()
+
 	releaser, err := Get(string(rs.cfg.ReleaseSystem))
 	if err != nil {
 		errors.Fatal(
@@ -41,12 +43,9 @@ func (rs *Service) Run(args []string) error {
 		)
 	}
 
-	Preflight()
-
 	// Later:
-	// PreflightChecks(...)
-	// VersionHandling(...)
-	// TagHandling(...)
+	// VersionHandling(...) - global version check - to ensure neko.json is the single source of truth
+	// Finally - Execute release based on given tool
 
 	return releaser.Release(rt)
 }

@@ -9,6 +9,7 @@ package cmd
 import (
 	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 	"github.com/nekoman-hq/neko-cli/internal/release"
 	"github.com/spf13/cobra"
 )
@@ -22,6 +23,7 @@ var releaseCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cfg := config.LoadConfig()
+		log.V("Config Loaded: %s ", string(cfg.ReleaseSystem))
 
 		service := release.NewReleaseService(cfg)
 

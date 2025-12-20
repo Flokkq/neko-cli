@@ -6,6 +6,6 @@ package git
 @Since      20.12.2025
 */
 
-func Latest(repoInfo *RepoInfo, token string) {
+func LatestTag(repoInfo *RepoInfo, token string) {
 
 }
