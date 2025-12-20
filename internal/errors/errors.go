@@ -9,6 +9,8 @@ package errors
 import (
 	"fmt"
 	"os"
+
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 type ErrorLevel int
@@ -26,14 +28,6 @@ type CLIError struct {
 	Code    string
 }
 
-// ANSI color codes
-const (
-	colorReset  = "\033[0m"
-	colorRed    = "\033[31m"
-	colorYellow = "\033[33m"
-	colorBold   = "\033[1m"
-)
-
 func PrintError(err CLIError) {
 	if err.Message == "" {
 		return
@@ -43,25 +37,25 @@ func PrintError(err CLIError) {
 	switch err.Level {
 	case ErrorLevelWarning:
 		prefix = "⚠ WARNING"
-		color = colorYellow
+		color = log.ColorYellow
 	case ErrorLevelError:
 		prefix = "✗ ERROR"
-		color = colorRed
+		color = log.ColorRed
 	case ErrorLevelFatal:
 		prefix = "✗ FATAL"
-		color = colorRed
+		color = log.ColorRed
 	}
 
-	fmt.Fprintf(os.Stderr, "%s%s%s", color, colorBold, prefix)
+	fmt.Fprintf(os.Stderr, "%s%s%s", color, log.ColorBold, prefix)
 	if err.Title != "" {
 		fmt.Fprintf(os.Stderr, ": %s", err.Title)
 	}
-	fmt.Fprintf(os.Stderr, "%s\n", colorReset)
+	fmt.Fprintf(os.Stderr, "%s\n", log.ColorReset)
 
-	fmt.Fprintf(os.Stderr, "%s%s%s\n", color, err.Message, colorReset)
+	fmt.Fprintf(os.Stderr, "%s%s%s\n", color, err.Message, log.ColorReset)
 
 	if err.Code != "" {
-		fmt.Fprintf(os.Stderr, "%sError Code: %s%s\n", color, err.Code, colorReset)
+		fmt.Fprintf(os.Stderr, "%sError Code: %s%s\n", color, err.Code, log.ColorReset)
 	}
 
 	fmt.Fprintln(os.Stderr)
