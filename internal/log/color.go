@@ -1,5 +1,11 @@
 package log
 
+/*
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since      20.12.2025
+*/
+
 const (
 	ColorReset  = "\033[0m"
 	ColorRed    = "\033[31m"
