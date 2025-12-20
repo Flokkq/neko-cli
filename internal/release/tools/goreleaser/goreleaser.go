@@ -26,11 +26,16 @@ func (g *GoReleaser) SupportsSurvey() bool {
 func (g *GoReleaser) Release(rt release.Type) error {
 	fmt.Println("Goreleaser release:", rt)
 
-	// Detect Version - if no version - default 0.1.0 or from config
-	// Select or execute increment
+	// (Moved To Global Service) Detect Version - if no version - default 0.1.0 or from config
+	// Select or execute increment (Survey only if no arg)
 	// Commit chore(release): version
 	// Tag - version
 	// Create release
+
+	// git describe --tags --abbrev=0
+
+	//git rev-parse --abbrev-ref HEAD
+	//git symbolic-ref HEAD
 
 	return nil
 }
