@@ -1,5 +1,11 @@
 package log
 
+/*
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since      20.12.2025
+*/
+
 type Category string
 
 const (

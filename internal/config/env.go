@@ -7,14 +7,19 @@ package config
 */
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/nekoman-hq/neko-cli/internal/errors"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 // GetPAT retrieves the GitHub Personal Access Token from the environment.
 // It exits the program with a clear error message if the token is not set.
 func GetPAT() string {
+	log.V(log.Config, fmt.Sprintf("Looking up required env variable: %s",
+		log.ColorText(log.ColorGreen, "GITHUB_TOKEN"),
+	))
 	token, ok := os.LookupEnv("GITHUB_TOKEN")
 	if !ok || token == "" {
 		errors.Fatal(

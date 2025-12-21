@@ -1,5 +1,11 @@
 package github
 
+/*
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since      19.12.2025
+*/
+
 type Release struct {
 	Name        string `json:"name"`
 	TagName     string `json:"tag_name"`
