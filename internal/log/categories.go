@@ -7,7 +7,7 @@ const (
 	Config       Category = "config"
 	Preflight    Category = "pre-flight"
 	VersionGuard Category = "version-guard"
-	Release      Category = "category"
+	Release      Category = "release"
 )
 
 var categoryColors = map[Category]string{
