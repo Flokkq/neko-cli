@@ -16,7 +16,7 @@ import (
 */
 
 func LatestTag() string {
-	log.V(fmt.Sprintf("%s (Extract last tag)", log.ColorText(log.ColorGreen, "git describe --tags --abbrev=0")))
+	log.V(log.Release, fmt.Sprintf("%s (Extract last tag)", log.ColorText(log.ColorGreen, "git describe --tags --abbrev=0")))
 	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -36,6 +36,6 @@ func LatestTag() string {
 		return "0.1.0"
 	}
 
-	log.V(fmt.Sprintf("Latest tag: %s", log.ColorText(log.ColorGreen, outputStr)))
+	log.V(log.VersionGuard, fmt.Sprintf("Latest tag: %s", log.ColorText(log.ColorGreen, outputStr)))
 	return outputStr
 }

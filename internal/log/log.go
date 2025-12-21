@@ -1,0 +1,19 @@
+package log
+
+import (
+	"fmt"
+	"time"
+)
+
+func Print(cat Category, msg string, args ...interface{}) {
+	color, ok := categoryColors[cat]
+	if !ok {
+		color = ColorReset
+	}
+
+	prefix := fmt.Sprintf("[%s]", cat)
+	coloredPrefix := ColorText(color, prefix)
+	timestamp := time.Now().Format("15:04:05")
+	fullMsg := fmt.Sprintf(msg, args...)
+	fmt.Printf("%s %s %s\n", timestamp, coloredPrefix, fullMsg)
+}

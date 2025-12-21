@@ -7,9 +7,12 @@ package release
 */
 
 import (
+	"fmt"
+
 	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/git"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 type Service struct {
@@ -48,5 +51,6 @@ func (rs *Service) Run(args []string) error {
 	// VersionHandling(...) - global version check - to ensure neko.json is the single source of truth
 	// Finally - Execute release based on given tool
 
+	log.V(log.VersionGuard, fmt.Sprintf("All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
 	return releaser.Release(rt)
 }

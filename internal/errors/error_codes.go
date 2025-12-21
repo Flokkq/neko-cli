@@ -3,7 +3,7 @@ package errors
 /*
 @Author     Benjamin Senekowitsch
 @Contact    senekowitsch@nekoman.at
-@Since     17.12.2025
+@Since      17.12.2025
 */
 
 const (
@@ -13,6 +13,9 @@ const (
 	ErrInvalidRemote    = "NEKO_1003"
 	ErrDirtyWorkingTree = "NEKO_1004"
 	ErrWrongBranch      = "NEKO_1005"
+	ErrDetachedHead     = "NEKO_1006"
+	ErrNoUpstream       = "NEKO_1007"
+	ErrBranchBehind     = "NEKO_1008"
 
 	ErrAPIRequest  = "NEKO_2000"
 	ErrAPIResponse = "NEKO_2001"

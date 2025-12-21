@@ -10,13 +10,13 @@ import "fmt"
 
 var Verbose = false
 
-func V(msg string, args ...interface{}) {
+func V(cat Category, msg string, args ...interface{}) {
 	if !Verbose {
 		return
 	}
 
-	prefix := ColorText(ColorYellow, "V$")
-	fullMsg := fmt.Sprintf("%s %s", prefix, fmt.Sprintf(msg, args...))
+	verbosePrefix := ColorText(ColorPurple, "V$")
+	enhancedMsg := fmt.Sprintf("%s %s", verbosePrefix, msg)
 
-	fmt.Println(fullMsg)
+	Print(cat, enhancedMsg, args...)
 }

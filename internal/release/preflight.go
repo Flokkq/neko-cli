@@ -1,29 +1,52 @@
 package release
 
 import (
-	"fmt"
-
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/git"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 func Preflight() {
-
+	log.V(log.Preflight, "Running pre-flight checks")
 	if err := git.IsClean(); err != nil {
-		fmt.Println("⚠ Preflight checks failed!")
 		errors.Error(
-			"Uncommitted Changes Detected",
+			"Uncommitted Changes",
 			err.Error(),
 			errors.ErrDirtyWorkingTree,
 		)
 	}
 
-	if err := git.OnMainBranch(); err != nil {
-		fmt.Println("⚠ Preflight checks failed!")
+	if err := git.EnsureNotDetached(); err != nil {
 		errors.Error(
-			"Incorrect Git Branch",
+			"Detached HEAD",
+			err.Error(),
+			errors.ErrDetachedHead,
+		)
+	}
+
+	if err := git.OnMainBranch(); err != nil {
+		errors.Error(
+			"Incorrect Branch",
 			err.Error(),
 			errors.ErrWrongBranch,
 		)
 	}
+
+	if err := git.HasUpstream(); err != nil {
+		errors.Error(
+			"No Upstream Branch",
+			err.Error(),
+			errors.ErrNoUpstream,
+		)
+	}
+
+	if err := git.IsUpToDate(); err != nil {
+		errors.Error(
+			"Branch Out of Date",
+			err.Error(),
+			errors.ErrBranchBehind,
+		)
+	}
+
+	log.V(log.Preflight, "\uF00C Preflight checks succeeded!")
 }
