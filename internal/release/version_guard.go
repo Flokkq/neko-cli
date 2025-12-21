@@ -17,14 +17,15 @@ import (
 )
 
 func VersionGuard(cfg *config.NekoConfig) {
+	log.V(log.VersionGuard, "Running Version Guard checks")
 	git.Fetch()
 
 	latestTag := git.LatestTag()
 
-	assertVersion(cfg, latestTag)
+	EnsureVersionIsValid(cfg, latestTag)
 }
 
-func assertVersion(cfg *config.NekoConfig, latestTag string) {
+func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) {
 	localVer, err := semver.NewVersion(cfg.Version)
 	if err != nil {
 		errors.Fatal(
@@ -48,5 +49,5 @@ func assertVersion(cfg *config.NekoConfig, latestTag string) {
 		)
 	}
 
-	log.V(fmt.Sprintf("Local version %s is >= latest tag %s, proceeding.", localVer, remoteVer))
+	log.V(log.VersionGuard, fmt.Sprintf("Local version %s is >= latest tag %s, proceeding.", localVer, remoteVer))
 }

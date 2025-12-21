@@ -12,11 +12,15 @@ import (
 	"regexp"
 
 	"github.com/nekoman-hq/neko-cli/internal/errors"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 const configFileName = ".neko.json"
 
 func LoadConfig() *NekoConfig {
+
+	log.V(log.Config, "\uE615 Loading config from file...")
+
 	data, err := os.ReadFile(configFileName)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -53,6 +57,8 @@ var semverRegex = regexp.MustCompile(
 )
 
 func Validate(cfg *NekoConfig) {
+	log.V(log.Config, "Validating serialised config...")
+
 	if !cfg.ProjectType.IsValid() {
 		errors.Error(
 			"Invalid configuration",
@@ -89,7 +95,7 @@ func Validate(cfg *NekoConfig) {
 		return
 	}
 
-	println("\n✓ Configuration appears valid")
+	log.Print(log.Config, "\uF00C Config appears valid")
 }
 
 func SaveConfig(config NekoConfig) error {
