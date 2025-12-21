@@ -46,11 +46,7 @@ func (rs *Service) Run(args []string) error {
 			errors.ErrInvalidReleaseType,
 		)
 	}
-
-	// Later:
-	// VersionHandling(...) - global version check - to ensure neko.json is the single source of truth
-	// Finally - Execute release based on given tool
-
-	log.V(log.VersionGuard, fmt.Sprintf("All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
+	
+	log.Print(log.VersionGuard, fmt.Sprintf("\uF00C All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
 	return releaser.Release(rt)
 }
