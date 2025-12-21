@@ -1,5 +1,11 @@
 package git
 
+/*
+@Author     Benjamin Senekowitsch
+@Contact    senekowitsch@nekoman.at
+@Since      20.12.2025
+*/
+
 import (
 	"encoding/json"
 	"fmt"
@@ -9,11 +15,16 @@ import (
 	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/git/github"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 func LatestRelease(repoInfo *RepoInfo) github.Release {
 	token := config.GetPAT()
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", repoInfo.Owner, repoInfo.Repo)
+
+	log.V(log.Release, fmt.Sprintf("Fetching latest release from remote: %s",
+		log.ColorText(log.ColorGreen, url),
+	))
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -77,5 +88,7 @@ func LatestRelease(repoInfo *RepoInfo) github.Release {
 			errors.ErrAPIResponse,
 		)
 	}
+
+	log.V(log.Release, fmt.Sprintf("\uF00C Successfully received release information from remote!"))
 	return release
 }

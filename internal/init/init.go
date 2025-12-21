@@ -7,11 +7,13 @@ package init
 */
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
+	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
 func Run() {
@@ -137,24 +139,41 @@ func getReleaseOptions(projectType config.ProjectType) []string {
 }
 
 func printSetupInstructions(cfg config.NekoConfig) {
-	println("\n✓ .neko.json created successfully\n")
-	println("Next steps:")
-	println("  • Use 'neko release' to create a release")
-	println("  • Neko automatically manages the version in:")
+	log.Print(log.Init, fmt.Sprintf("%s .neko.json created successfully!\n",
+		log.ColorText(log.ColorGreen, "\uF00C")))
+
+	println(log.ColorText(log.ColorBold, "\nNext steps:"))
+	println(fmt.Sprintf("  %s Use %s to create a release",
+		log.ColorText(log.ColorCyan, "\uF101"),
+		log.ColorText(log.ColorCyan, "'neko release'")))
+	println(fmt.Sprintf("  %s Neko automatically manages the version in:",
+		log.ColorText(log.ColorCyan, "\uF101")))
 
 	switch cfg.ReleaseSystem {
 	case config.ReleaseTypeReleaseIt:
-		println("    - package.json")
-		println("    - .release-it.json")
-
+		println(fmt.Sprintf("    %s %s",
+			log.ColorText(log.ColorGreen, "\uF692"),
+			log.ColorText(log.ColorYellow, "package.json")))
+		println(fmt.Sprintf("    %s %s",
+			log.ColorText(log.ColorGreen, "\uF692"),
+			log.ColorText(log.ColorYellow, ".release-it.json")))
 	case config.ReleaseTypeJReleaser:
-		println("    - jreleaser.yml")
-		println("    - pom.xml / build.gradle")
-
+		println(fmt.Sprintf("    %s %s",
+			log.ColorText(log.ColorGreen, "\uF692"),
+			log.ColorText(log.ColorYellow, "jreleaser.yml")))
+		println(fmt.Sprintf("    %s %s",
+			log.ColorText(log.ColorGreen, "\uF692"),
+			log.ColorText(log.ColorYellow, "pom.xml / build.gradle")))
 	case config.ReleaseTypeGoReleaser:
-		println("    - .goreleaser.yml")
-		println("    - Git tags")
+		println(fmt.Sprintf("    %s %s",
+			log.ColorText(log.ColorGreen, "\uF692"),
+			log.ColorText(log.ColorYellow, ".goreleaser.yml")))
+		println(fmt.Sprintf("    %s %s",
+			log.ColorText(log.ColorGreen, "\uF692"),
+			log.ColorText(log.ColorYellow, "Git tags")))
 	}
 
-	println("\nTip: The version in .neko.json is the single source of truth.")
+	println(fmt.Sprintf("\n%s The version in %s is the single source of truth.",
+		log.ColorText(log.ColorCyan, "\uF0EB"),
+		log.ColorText(log.ColorYellow, ".neko.json")))
 }
