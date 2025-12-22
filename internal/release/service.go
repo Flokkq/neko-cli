@@ -27,7 +27,7 @@ func (rs *Service) Run(args []string) error {
 	_, _ = git.Current()
 
 	Preflight()
-	VersionGuard(rs.cfg)
+	version := VersionGuard(rs.cfg)
 
 	releaser, err := Get(string(rs.cfg.ReleaseSystem))
 	if err != nil {
@@ -38,6 +38,18 @@ func (rs *Service) Run(args []string) error {
 		)
 	}
 
+	log.Print(log.Release,
+		fmt.Sprintf("Release system detected: %s",
+			log.ColorText(log.ColorPurple, releaser.Name()),
+		),
+	)
+
+	log.Print(log.Release,
+		fmt.Sprintf("\uE702 Latest version tag extracted successfully \uF178 %s",
+			log.ColorText(log.ColorCyan, version),
+		),
+	)
+
 	rt, err := ResolveReleaseType(args, releaser)
 	if err != nil {
 		errors.Fatal(
@@ -46,7 +58,7 @@ func (rs *Service) Run(args []string) error {
 			errors.ErrInvalidReleaseType,
 		)
 	}
-	
+
 	log.Print(log.VersionGuard, fmt.Sprintf("\uF00C All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
 	return releaser.Release(rt)
 }

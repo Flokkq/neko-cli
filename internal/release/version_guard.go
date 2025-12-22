@@ -16,16 +16,16 @@ import (
 	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
-func VersionGuard(cfg *config.NekoConfig) {
+func VersionGuard(cfg *config.NekoConfig) string {
 	log.V(log.VersionGuard, "Running Version Guard checks")
 	git.Fetch()
 
 	latestTag := git.LatestTag()
 
-	EnsureVersionIsValid(cfg, latestTag)
+	return EnsureVersionIsValid(cfg, latestTag)
 }
 
-func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) {
+func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) string {
 	localVer, err := semver.NewVersion(cfg.Version)
 	if err != nil {
 		errors.Fatal(
@@ -37,17 +37,39 @@ func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) {
 
 	remoteVer, err := semver.NewVersion(latestTag)
 	if err != nil {
-		errors.Warning("Latest Git tag %s is not a valid semver, skipping comparison", latestTag)
-		return
+		errors.Warning(
+			"Latest Git tag %s is not a valid semantic version, skipping comparison",
+			latestTag,
+		)
+
+		log.V(log.VersionGuard,
+			fmt.Sprintf("Using local version %s",
+				log.ColorText(log.ColorGreen, localVer.String()),
+			),
+		)
+
+		return localVer.String()
 	}
 
 	if localVer.LessThan(remoteVer) {
 		errors.Fatal(
 			"Version violation",
-			fmt.Sprintf("Local version %s is smaller than latest tag %s", localVer, remoteVer),
+			fmt.Sprintf(
+				"Local version %s is smaller than latest tag %s",
+				localVer,
+				remoteVer,
+			),
 			errors.ErrVersionViolation,
 		)
 	}
 
-	log.V(log.VersionGuard, fmt.Sprintf("Local version %s is >= latest tag %s, proceeding.", localVer, remoteVer))
+	log.V(log.VersionGuard,
+		fmt.Sprintf(
+			"Local version %s is >= latest tag %s, proceeding.",
+			log.ColorText(log.ColorGreen, localVer.String()),
+			log.ColorText(log.ColorCyan, remoteVer.String()),
+		),
+	)
+
+	return localVer.String()
 }
