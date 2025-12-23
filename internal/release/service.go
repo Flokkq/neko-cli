@@ -64,18 +64,17 @@ func (rs *Service) Run(args []string) error {
 
 	newVersion := NextVersion(version, rt)
 
+	if err := rs.updateConfig(&newVersion); err != nil {
+		errors.Warning(
+			"Failed to update local config",
+			fmt.Sprintf("Updating version in .neko.json failed. Attempting to proceed with release: %s", err.Error()))
+	}
+
 	if err := releaser.Release(&newVersion, rt); err != nil {
 		errors.Fatal(
 			"Release failed",
 			err.Error(),
 			errors.ErrReleaseFailed,
-		)
-	}
-
-	if err := rs.updateConfig(&newVersion); err != nil {
-		errors.Warning(
-			"Failed to update local config",
-			fmt.Sprintf("Release was successful but config update failed: %s", err.Error()),
 		)
 	}
 
