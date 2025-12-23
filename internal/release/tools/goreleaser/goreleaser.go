@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/Masterminds/semver/v3"
 	"github.com/nekoman-hq/neko-cli/internal/release"
 )
 
@@ -40,7 +41,7 @@ func (g *GoReleaser) Release(rt release.Type) error {
 	return nil
 }
 
-func (g *GoReleaser) Survey() (release.Type, error) {
+func (g *GoReleaser) Survey(version *semver.Version) (release.Type, error) {
 	var choice string
 
 	prompt := &survey.Select{

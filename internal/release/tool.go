@@ -3,6 +3,8 @@ package release
 import (
 	"fmt"
 	"strings"
+
+	"github.com/Masterminds/semver/v3"
 )
 
 /*
@@ -14,7 +16,7 @@ import (
 type Tool interface {
 	Name() string
 	Release(rt Type) error
-	Survey() (Type, error)
+	Survey(version *semver.Version) (Type, error)
 	SupportsSurvey() bool
 }
 

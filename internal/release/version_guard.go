@@ -16,7 +16,7 @@ import (
 	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
-func VersionGuard(cfg *config.NekoConfig) string {
+func VersionGuard(cfg *config.NekoConfig) *semver.Version {
 	log.V(log.VersionGuard, "Running Version Guard checks")
 	git.Fetch()
 
@@ -25,7 +25,7 @@ func VersionGuard(cfg *config.NekoConfig) string {
 	return EnsureVersionIsValid(cfg, latestTag)
 }
 
-func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) string {
+func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) *semver.Version {
 	localVer, err := semver.NewVersion(cfg.Version)
 	if err != nil {
 		errors.Fatal(
@@ -48,7 +48,7 @@ func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) string {
 			),
 		)
 
-		return localVer.String()
+		return localVer
 	}
 
 	if localVer.LessThan(remoteVer) {
@@ -71,5 +71,5 @@ func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) string {
 		),
 	)
 
-	return localVer.String()
+	return localVer
 }

@@ -46,11 +46,11 @@ func (rs *Service) Run(args []string) error {
 
 	log.Print(log.Release,
 		fmt.Sprintf("\uE702 Latest version tag extracted successfully \uF178 %s",
-			log.ColorText(log.ColorCyan, version),
+			log.ColorText(log.ColorCyan, version.String()),
 		),
 	)
 
-	rt, err := ResolveReleaseType(args, releaser)
+	rt, err := ResolveReleaseType(args, releaser, version)
 	if err != nil {
 		errors.Fatal(
 			"Invalid Release Type",
