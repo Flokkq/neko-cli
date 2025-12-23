@@ -9,6 +9,7 @@ package release
 import (
 	"fmt"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/git"
@@ -60,5 +61,31 @@ func (rs *Service) Run(args []string) error {
 	}
 
 	log.Print(log.VersionGuard, fmt.Sprintf("\uF00C All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
-	return releaser.Release(version, rt)
+
+	newVersion := NextVersion(version, rt)
+
+	if err := releaser.Release(&newVersion, rt); err != nil {
+		errors.Fatal(
+			"Release failed",
+			err.Error(),
+			errors.ErrReleaseFailed,
+		)
+	}
+
+	if err := rs.updateConfig(&newVersion); err != nil {
+		errors.Warning(
+			"Failed to update local config",
+			fmt.Sprintf("Release was successful but config update failed: %s", err.Error()),
+		)
+	}
+
+	log.Print(log.Release, fmt.Sprintf("\uF00C Successfully released version %s",
+		log.ColorText(log.ColorGreen, version.String())))
+
+	return nil
+}
+
+func (rs *Service) updateConfig(newVersion *semver.Version) error {
+	rs.cfg.Version = newVersion.String()
+	return config.SaveConfig(*rs.cfg)
 }
