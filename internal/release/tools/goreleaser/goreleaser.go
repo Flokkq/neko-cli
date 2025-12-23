@@ -28,19 +28,17 @@ func (g *GoReleaser) SupportsSurvey() bool {
 	return true
 }
 
-func (g *GoReleaser) Release(v *semver.Version, rt release.Type) error {
-	log.Print(log.Release, fmt.Sprintf("Starting GoReleaser release: %s", rt))
-	version := release.NextVersion(v, rt)
+func (g *GoReleaser) Release(version *semver.Version, rt release.Type) error {
 
-	if err := g.createReleaseCommit(&version); err != nil {
+	if err := g.createReleaseCommit(version); err != nil {
 		return err
 	}
 
-	if err := g.createGitTag(&version); err != nil {
+	if err := g.createGitTag(version); err != nil {
 		return err
 	}
 
-	if err := g.pushGitTag(&version); err != nil {
+	if err := g.pushGitTag(version); err != nil {
 		return err
 	}
 
@@ -52,8 +50,6 @@ func (g *GoReleaser) Release(v *semver.Version, rt release.Type) error {
 		return err
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C Successfully released version %s",
-		log.ColorText(log.ColorGreen, version.String())))
 	return nil
 }
 
