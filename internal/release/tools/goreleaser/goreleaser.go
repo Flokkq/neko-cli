@@ -42,19 +42,24 @@ func (g *GoReleaser) Release(rt release.Type) error {
 }
 
 func (g *GoReleaser) Survey(version *semver.Version) (release.Type, error) {
-	var choice string
+	options := []string{
+		fmt.Sprintf("Patch \uF178 %s", release.NextVersion(version, release.Patch)),
+		fmt.Sprintf("Minor \uF178 %s", release.NextVersion(version, release.Minor)),
+		fmt.Sprintf("Major \uF178 %s", release.NextVersion(version, release.Major)),
+	}
 
+	var choice string
 	prompt := &survey.Select{
 		Message: "Which type of release do you want to create?",
-		Options: []string{"Patch", "Minor", "Major"},
-		Default: "Patch",
+		Options: options,
+		Default: options[0], // Patch
 	}
 
 	if err := survey.AskOne(prompt, &choice); err != nil {
 		return release.Patch, err
 	}
 
-	return release.ParseReleaseType(choice)
+	return release.ParseReleaseType(choice[:5])
 }
 
 func init() {
