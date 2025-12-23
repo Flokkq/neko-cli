@@ -26,7 +26,7 @@ func NewReleaseService(cfg *config.NekoConfig) *Service {
 func (rs *Service) Run(args []string) error {
 	_, _ = git.Current()
 
-	Preflight()
+	// Preflight()
 	version := VersionGuard(rs.cfg)
 
 	releaser, err := Get(string(rs.cfg.ReleaseSystem))
@@ -45,7 +45,7 @@ func (rs *Service) Run(args []string) error {
 	)
 
 	log.Print(log.Release,
-		fmt.Sprintf("\uE702 Latest version tag extracted successfully \uF178 %s",
+		fmt.Sprintf("Latest version tag extracted successfully \uF178 %s",
 			log.ColorText(log.ColorCyan, version.String()),
 		),
 	)
