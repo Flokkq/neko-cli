@@ -33,4 +33,8 @@ const (
 	ErrInvalidReleaseType   = "NEKO_4000"
 	ErrInvalidReleaseSystem = "NEKO_4001"
 	ErrReleaseFailed        = "NEKO_4002"
+	ErrReleaseCommit        = "NEKO_4003"
+	ErrReleaseTag           = "NEKO_4004"
+	ErrReleasePush          = "NEKO_4005"
+	ErrGoReleaserExecution  = "NEKO_4006"
 )
