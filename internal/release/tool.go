@@ -15,7 +15,7 @@ import (
 
 type Tool interface {
 	Name() string
-	Release(rt Type) error
+	Release(version *semver.Version, rt Type) error
 	Survey(version *semver.Version) (Type, error)
 	SupportsSurvey() bool
 }

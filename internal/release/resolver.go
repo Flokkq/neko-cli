@@ -14,7 +14,7 @@ import (
 	"github.com/nekoman-hq/neko-cli/internal/log"
 )
 
-func ResolveReleaseType(args []string, t Tool, version *semver.Version) (Type, error) {
+func ResolveReleaseType(version *semver.Version, args []string, t Tool) (Type, error) {
 	if len(args) > 0 {
 		rt, err := ParseReleaseType(args[0])
 		if err != nil {

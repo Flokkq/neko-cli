@@ -50,7 +50,7 @@ func (rs *Service) Run(args []string) error {
 		),
 	)
 
-	rt, err := ResolveReleaseType(args, releaser, version)
+	rt, err := ResolveReleaseType(version, args, releaser)
 	if err != nil {
 		errors.Fatal(
 			"Invalid Release Type",
@@ -60,5 +60,5 @@ func (rs *Service) Run(args []string) error {
 	}
 
 	log.Print(log.VersionGuard, fmt.Sprintf("\uF00C All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
-	return releaser.Release(rt)
+	return releaser.Release(version, rt)
 }
