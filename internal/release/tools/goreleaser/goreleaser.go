@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/Masterminds/semver/v3"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/log"
@@ -278,24 +277,7 @@ func (g *GoReleaser) runGoReleaserRelease() error {
 }
 
 func (g *GoReleaser) Survey(version *semver.Version) (release.Type, error) {
-	options := []string{
-		fmt.Sprintf("Patch \uF178 %s", release.NextVersion(version, release.Patch)),
-		fmt.Sprintf("Minor \uF178 %s", release.NextVersion(version, release.Minor)),
-		fmt.Sprintf("Major \uF178 %s", release.NextVersion(version, release.Major)),
-	}
-
-	var choice string
-	prompt := &survey.Select{
-		Message: "Which type of release do you want to create?",
-		Options: options,
-		Default: options[0], // Patch
-	}
-
-	if err := survey.AskOne(prompt, &choice); err != nil {
-		return release.Patch, err
-	}
-
-	return release.ParseReleaseType(choice[:5])
+	return release.NekoSurvey(version)
 }
 
 func init() {
