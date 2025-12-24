@@ -14,6 +14,10 @@ With neko-cli, you can:
 ---
 ## Hot To Use
 
+**Requirements**
+- A PAT named `GITHUB_TOKEN` is needed (Different naming options planned)
+- If a cli tool of a specific release system exists. Its needed (example goreleaser - https://goreleaser.com/install/)
+
 **Global Flags**
 
 `-h` Help displays 
