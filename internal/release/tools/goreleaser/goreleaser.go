@@ -24,12 +24,12 @@ func (g *GoReleaser) Name() string {
 	return "goreleaser"
 }
 
-func (g *GoReleaser) Init(v *semver.Version) error {
+func (g *GoReleaser) Init(_ *semver.Version) error {
 
 	requireBinary(g.Name())
 	runGoreleaserInit()
 	runGoreleaserCheck()
-	
+
 	return nil
 }
 
@@ -117,7 +117,7 @@ func runGoreleaserInit() {
 	log.Print(
 		log.Init,
 		fmt.Sprintf(
-			"Successfully initialized %s",
+			"\uF00C  Successfully initialized %s",
 			log.ColorText(log.ColorCyan, "goreleaser"),
 		),
 	)
@@ -144,7 +144,7 @@ func runGoreleaserCheck() {
 	log.Print(
 		log.Init,
 		fmt.Sprintf(
-			"Configuration check passed for %s",
+			"\uF00C  Configuration check passed for %s",
 			log.ColorText(log.ColorCyan, "goreleaser"),
 		),
 	)
