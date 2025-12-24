@@ -79,7 +79,7 @@ func requireBinary(name string) {
 		errors.Fatal(
 			"Required dependency missing",
 			fmt.Sprintf(
-				"%s is not installed or not available in PATH",
+				"%s is not installed or not available in PATH (More info here: https://goreleaser.com/install/)",
 				name,
 			),
 			errors.ErrDependencyMissing,
