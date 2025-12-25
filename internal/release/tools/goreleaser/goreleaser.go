@@ -42,19 +42,19 @@ func (g *GoReleaser) SupportsSurvey() bool {
 
 func (g *GoReleaser) Release(v *semver.Version) error {
 
-	if err := g.createReleaseCommit(v); err != nil {
+	if err := g.CreateReleaseCommit(v); err != nil {
 		return err
 	}
 
-	if err := g.createGitTag(v); err != nil {
+	if err := g.ToolBase.CreateGitTag(v); err != nil {
 		return err
 	}
 
-	if err := g.pushCommits(); err != nil {
+	if err := g.ToolBase.PushCommits(); err != nil {
 		return err
 	}
 
-	if err := g.pushGitTag(v); err != nil {
+	if err := g.ToolBase.PushGitTag(v); err != nil {
 		return err
 	}
 
@@ -140,92 +140,6 @@ func runGoreleaserCheck() {
 			log.ColorText(log.ColorCyan, "goreleaser"),
 		),
 	)
-}
-
-// createReleaseCommit creates the chore commit for the release
-func (g *GoReleaser) createReleaseCommit(v *semver.Version) error {
-	commitMsg := fmt.Sprintf("chore(neko-release): %s", v)
-
-	log.V(log.Release, fmt.Sprintf("Creating release commit: %s",
-		log.ColorText(log.ColorGreen, fmt.Sprintf("git commit --allow-empty -m \"%s\"", commitMsg))))
-
-	cmd := exec.Command("git", "commit", "--allow-empty", "-a", "-m", commitMsg)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		errors.Fatal(
-			"Failed to create release commit",
-			fmt.Sprintf("git commit failed: %s", strings.TrimSpace(string(output))),
-			errors.ErrReleaseCommit,
-		)
-	}
-
-	log.Print(log.Release, fmt.Sprintf("\uF00C Created release commit: %s",
-		log.ColorText(log.ColorGreen, commitMsg)))
-	return nil
-}
-
-// createGitTag creates a git tag for the version
-func (g *GoReleaser) createGitTag(v *semver.Version) error {
-	tag := fmt.Sprintf("v%s", v)
-
-	log.V(log.Release, fmt.Sprintf("Creating git tag: %s",
-		log.ColorText(log.ColorGreen, fmt.Sprintf("git tag %s", tag))))
-
-	cmd := exec.Command("git", "tag", tag)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		errors.Fatal(
-			"Failed to create git tag",
-			fmt.Sprintf("git tag %s failed: %s", tag, strings.TrimSpace(string(output))),
-			errors.ErrReleaseTag,
-		)
-	}
-
-	log.Print(log.Release, fmt.Sprintf("\uF00C Created git tag: %s",
-		log.ColorText(log.ColorGreen, tag)))
-	return nil
-}
-
-// pushCommit pushes the release commit to remote
-func (g *GoReleaser) pushCommits() error {
-	log.V(log.Release, fmt.Sprintf("Pushing release commit: %s",
-		log.ColorText(log.ColorGreen, "git push origin HEAD")))
-
-	cmd := exec.Command("git", "push", "origin", "HEAD")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		errors.Fatal(
-			"Failed to push release commits",
-			fmt.Sprintf("git push failed: %s", strings.TrimSpace(string(output))),
-			errors.ErrReleasePush,
-		)
-	}
-
-	log.Print(log.Release, fmt.Sprintf("\uF00C Pushed release commit to %s",
-		log.ColorText(log.ColorGreen, "origin")))
-	return nil
-}
-
-// pushGitTag pushes the git tag to remote
-func (g *GoReleaser) pushGitTag(v *semver.Version) error {
-	tag := fmt.Sprintf("v%s", v)
-
-	log.V(log.Release, fmt.Sprintf("Pushing git tag: %s",
-		log.ColorText(log.ColorGreen, fmt.Sprintf("git push origin %s", tag))))
-
-	cmd := exec.Command("git", "push", "origin", tag)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		errors.Fatal(
-			"Failed to push git tag",
-			fmt.Sprintf("git push %s failed: %s", tag, strings.TrimSpace(string(output))),
-			errors.ErrReleasePush,
-		)
-	}
-
-	log.Print(log.Release, fmt.Sprintf("\uF00C Pushed git tag: %s",
-		log.ColorText(log.ColorGreen, tag)))
-	return nil
 }
 
 // runGoReleaserDryRun executes goreleaser in dry-run mode
