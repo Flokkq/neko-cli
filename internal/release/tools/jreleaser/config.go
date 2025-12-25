@@ -93,6 +93,20 @@ type Category struct {
 	Order  int      `yaml:"order"`
 }
 
+func LoadConfig() (*Config, error) {
+	data, err := os.ReadFile(".jreleaser.yml")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var cfg Config
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	return &cfg, nil
+}
+
 func SaveConfig(cfg *Config) (err error) {
 	file, err := os.Create("jreleaser.yml")
 	if err != nil {

@@ -19,7 +19,7 @@ import (
 
 type Tool interface {
 	Name() string
-	Init(v *semver.Version, cfg *config.NekoConfig) error
+	Init(cfg *config.NekoConfig) error
 	Release(v *semver.Version) error
 	Survey(v *semver.Version) (Type, error)
 	SupportsSurvey() bool
