@@ -8,6 +8,7 @@ package jreleaser
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -45,6 +46,23 @@ func (j *Jreleaser) Init(v *semver.Version, cfg *config.NekoConfig) error {
 }
 
 func (j *Jreleaser) Release(v *semver.Version) error {
+
+	if err := j.CreateReleaseCommit(v); err != nil {
+		return err
+	}
+
+	if err := j.ToolBase.CreateGitTag(v); err != nil {
+		return err
+	}
+
+	if err := j.ToolBase.PushCommits(); err != nil {
+		return err
+	}
+
+	if err := j.ToolBase.PushGitTag(v); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -58,6 +76,25 @@ func (j *Jreleaser) SupportsSurvey() bool {
 
 func runJreleaserInit(cfg *config.NekoConfig) {
 	log.V(log.Init, "Generating JReleaser configuration...")
+
+	if _, err := os.Stat(".jreleaser.yml"); err == nil {
+		log.Print(
+			log.Init,
+			fmt.Sprintf(
+				"Skipping jreleaser init, %s already exists",
+				log.ColorText(log.ColorCyan, "jreleaser.yml"),
+			),
+		)
+		return
+	} else if !os.IsNotExist(err) {
+		errors.Fatal(
+			"Failed to check goreleaser.yml",
+			err.Error(),
+			errors.ErrFileAccess,
+		)
+		return
+	}
+
 	jcfg := &Config{
 		Project: Project{
 			Name:    cfg.ProjectName,
