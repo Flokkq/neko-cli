@@ -27,7 +27,7 @@ func (g *GoReleaser) Name() string {
 	return "goreleaser"
 }
 
-func (g *GoReleaser) Init(_ *semver.Version, _ *config.NekoConfig) error {
+func (g *GoReleaser) Init(_ *config.NekoConfig) error {
 
 	g.RequireBinary(g.Name())
 

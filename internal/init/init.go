@@ -7,9 +7,6 @@ package init
 */
 
 import (
-	"fmt"
-
-	"github.com/Masterminds/semver/v3"
 	"github.com/nekoman-hq/neko-cli/internal/config"
 	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/git"
@@ -46,16 +43,7 @@ func Run(info *git.RepoInfo) {
 		)
 	}
 
-	v, err := semver.NewVersion(cfg.Version)
-	if err != nil {
-		errors.Fatal(
-			"Invalid local version",
-			fmt.Sprintf("Version %s in .neko.json is not a valid semantic version", cfg.Version),
-			errors.ErrVersionViolation,
-		)
-	}
-
-	err = releaser.Init(v, &cfg)
+	err = releaser.Init(&cfg)
 	if err != nil {
 		errors.Fatal(
 			"Release system initialization failed",

@@ -21,15 +21,15 @@ import (
 	"github.com/nekoman-hq/neko-cli/internal/release"
 )
 
-type Jreleaser struct {
+type JReleaser struct {
 	release.ToolBase
 }
 
-func (j *Jreleaser) Name() string {
+func (j *JReleaser) Name() string {
 	return "jreleaser"
 }
 
-func (j *Jreleaser) Init(v *semver.Version, cfg *config.NekoConfig) error {
+func (j *JReleaser) Init(cfg *config.NekoConfig) error {
 
 	log.V(log.Init, fmt.Sprintf("Initializing %s for project %s@%s",
 		log.ColorText(log.ColorGreen, j.Name()),
@@ -38,16 +38,20 @@ func (j *Jreleaser) Init(v *semver.Version, cfg *config.NekoConfig) error {
 	))
 
 	j.RequireBinary(j.Name())
-	runJreleaserInit(cfg)
-	runJreleaserCheck()
+	j.runJReleaserInit(cfg)
+	j.runJReleaserCheck()
 
 	log.Print(log.Init, fmt.Sprintf("\uF00C Initialization complete for %s", log.ColorText(log.ColorCyan, j.Name())))
 	return nil
 }
 
-func (j *Jreleaser) Release(v *semver.Version) error {
+func (j *JReleaser) Release(v *semver.Version) error {
 
-	if err := j.CreateReleaseCommit(v); err != nil {
+	if err := j.syncJReleaser(v); err != nil {
+		return err
+	}
+
+	if err := j.ToolBase.CreateReleaseCommit(v); err != nil {
 		return err
 	}
 
@@ -59,22 +63,26 @@ func (j *Jreleaser) Release(v *semver.Version) error {
 		return err
 	}
 
-	if err := j.ToolBase.PushGitTag(v); err != nil {
+	if err := j.runJReleaserDryRun(); err != nil {
+		return err
+	}
+
+	if err := j.runJReleaserRelease(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (j *Jreleaser) Survey(v *semver.Version) (release.Type, error) {
+func (j *JReleaser) Survey(v *semver.Version) (release.Type, error) {
 	return release.NekoSurvey(v)
 }
 
-func (j *Jreleaser) SupportsSurvey() bool {
+func (j *JReleaser) SupportsSurvey() bool {
 	return true
 }
 
-func runJreleaserInit(cfg *config.NekoConfig) {
+func (j *JReleaser) runJReleaserInit(cfg *config.NekoConfig) {
 	log.V(log.Init, "Generating JReleaser configuration...")
 
 	if _, err := os.Stat(".jreleaser.yml"); err == nil {
@@ -169,17 +177,17 @@ func runJreleaserInit(cfg *config.NekoConfig) {
 	log.Print(log.Init, fmt.Sprintf("\uF00C JReleaser configuration generated for %s", log.ColorText(log.ColorCyan, cfg.ProjectName)))
 }
 
-func runJreleaserCheck() {
+func (j *JReleaser) runJReleaserCheck() {
 	log.V(log.Init,
-		fmt.Sprintf("Checking jreleaser configuration: %s",
+		fmt.Sprintf("Checking JReleaser configuration: %s",
 			log.ColorText(log.ColorGreen, "jreleaser config"),
 		),
 	)
 
-	output, err := executeJreleaserCommand("config")
+	output, err := executeJReleaserCommand("config")
 	if err != nil {
 		errors.Fatal(
-			"Jreleaser configuration check failed",
+			"JReleaser configuration check failed",
 			fmt.Sprintf("Command failed: %s\nOutput: %s", err.Error(), string(output)),
 			errors.ErrDependencyMissing,
 		)
@@ -194,7 +202,116 @@ func runJreleaserCheck() {
 	)
 }
 
-func executeJreleaserCommand(action string) ([]byte, error) {
+func (j *JReleaser) syncJReleaser(v *semver.Version) error {
+	log.V(log.Release,
+		fmt.Sprintf("Syncing JReleaser configuration with version %s",
+			log.ColorText(log.ColorCyan, v.String()),
+		),
+	)
+
+	if _, err := os.Stat(".jreleaser.yml"); os.IsNotExist(err) {
+		return fmt.Errorf(".jreleaser.yml not found")
+	}
+
+	jcfg, err := LoadConfig()
+	if err != nil {
+		errors.Fatal(
+			"Configuration serialization failed",
+			"Could not marshal jreleaser.yml: "+err.Error(),
+			errors.ErrConfigMarshal,
+		)
+		return err
+	}
+
+	jcfg.Project.Version = v.String()
+
+	if err := SaveConfig(jcfg); err != nil {
+		errors.Fatal(
+			"Configuration write failed",
+			"Could not write jreleaser.yml: "+err.Error(),
+			errors.ErrConfigWrite,
+		)
+	}
+
+	log.Print(log.Release,
+		fmt.Sprintf("\uF00C JReleaser version updated to %s",
+			log.ColorText(log.ColorGreen, v.String()),
+		),
+	)
+
+	return nil
+}
+
+// runJReleaserDryRun executes JReleaser in dry-run mode
+func (j *JReleaser) runJReleaserDryRun() error {
+	action := "full-release --dry-run"
+
+	log.V(
+		log.Release,
+		fmt.Sprintf(
+			"Running JReleaser dry run: %s",
+			log.ColorText(log.ColorGreen, "jreleaser "+action),
+		),
+	)
+
+	output, err := executeJReleaserCommand(action)
+	if err != nil {
+		errors.Warning(
+			"JReleaser dry run failed",
+			fmt.Sprintf(
+				"This is a warning - proceeding anyway: %s",
+				strings.TrimSpace(string(output)),
+			),
+		)
+		log.Print(log.Release, "\u26A0 Dry run failed, but continuing with release")
+		return nil
+	}
+
+	log.Print(
+		log.Release,
+		fmt.Sprintf(
+			"\uF00C JReleaser dry run %s",
+			log.ColorText(log.ColorGreen, "successful"),
+		),
+	)
+	return nil
+}
+
+// runJReleaserRelease executes the full jreleaser release
+func (j *JReleaser) runJReleaserRelease() error {
+	action := "full-release"
+
+	log.V(
+		log.Release,
+		fmt.Sprintf(
+			"Running JReleaser release: %s",
+			log.ColorText(log.ColorGreen, "jreleaser "+action),
+		),
+	)
+
+	output, err := executeJReleaserCommand(action)
+	if err != nil {
+		errors.Fatal(
+			"JReleaser release failed",
+			fmt.Sprintf(
+				"jreleaser full-release failed: %s",
+				strings.TrimSpace(string(output)),
+			),
+			errors.ErrJReleaserExecution,
+		)
+	}
+
+	log.Print(
+		log.Release,
+		fmt.Sprintf(
+			"\uF00C JReleaser release %s",
+			log.ColorText(log.ColorGreen, "successful"),
+		),
+	)
+	return nil
+}
+
+func executeJReleaserCommand(action string) ([]byte, error) {
 	pat := config.GetPAT()
 	if pat == "" {
 		return nil, fmt.Errorf("personal access token is empty")
@@ -215,5 +332,5 @@ func executeJreleaserCommand(action string) ([]byte, error) {
 }
 
 func init() {
-	release.Register(&Jreleaser{})
+	release.Register(&JReleaser{})
 }
