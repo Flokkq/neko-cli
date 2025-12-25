@@ -1,5 +1,5 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
+# Make sure to validate the documentation at https://goreleaser.com
 
 # The lines below are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/need to use them.
@@ -22,6 +22,12 @@ builds:
       - linux
       - windows
       - darwin
+    ldflags:
+      - -s -w
+      - -X git.com/nekoman-hq/neko-cli/internal/version.Version={{.Version}}
+      - -X git.com/nekoman-hq/neko-cli/internal/version.Commit={{.Commit}}
+      - -X git.com/nekoman-hq/neko-cli/internal/version.Date={{.Date}}
+      - -X git.com/nekoman-hq/neko-cli/internal/version.BuiltBy=goreleaser
 
 archives:
   - formats: [tar.gz]
