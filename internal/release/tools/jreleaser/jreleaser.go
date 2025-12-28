@@ -203,8 +203,8 @@ func (j *JReleaser) syncJReleaser(v *semver.Version) error {
 		),
 	)
 
-	if _, err := os.Stat(".jreleaser.yml"); os.IsNotExist(err) {
-		return fmt.Errorf(".jreleaser.yml not found")
+	if _, err := os.Stat("jreleaser.yml"); os.IsNotExist(err) {
+		return fmt.Errorf("jreleaser.yml not found")
 	}
 
 	jcfg, err := LoadConfig()
