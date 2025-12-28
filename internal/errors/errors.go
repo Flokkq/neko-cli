@@ -1,3 +1,4 @@
+// Package errors includes helper functions to display cli errors or warnings
 package errors
 
 /*
@@ -65,7 +66,6 @@ func PrintError(err CLIError) {
 	}
 }
 
-// Convenience functions
 func Warning(title, message string) {
 	PrintError(CLIError{
 		Level:   ErrorLevelWarning,

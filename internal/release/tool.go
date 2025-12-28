@@ -49,11 +49,9 @@ func (tb *ToolBase) RequireBinary(name string) {
 
 	log.Print(
 		log.Init,
-		fmt.Sprintf(
-			"\uF00C Found %s at %s",
-			log.ColorText(log.ColorCyan, name),
-			log.ColorText(log.ColorGreen, path),
-		),
+		"\uF00C Found %s at %s",
+		log.ColorText(log.ColorCyan, name),
+		log.ColorText(log.ColorGreen, path),
 	)
 }
 
@@ -74,8 +72,8 @@ func (tb *ToolBase) CreateReleaseCommit(v *semver.Version) error {
 		)
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C Created release commit: %s",
-		log.ColorText(log.ColorGreen, commitMsg)))
+	log.Print(log.Release, "\uF00C Created release commit: %s",
+		log.ColorText(log.ColorGreen, commitMsg))
 	return nil
 }
 
@@ -96,8 +94,8 @@ func (tb *ToolBase) CreateGitTag(v *semver.Version) error {
 		)
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C Created git tag: %s",
-		log.ColorText(log.ColorGreen, tag)))
+	log.Print(log.Release, "\uF00C Created git tag: %s",
+		log.ColorText(log.ColorGreen, tag))
 	return nil
 }
 
@@ -116,8 +114,8 @@ func (tb *ToolBase) PushCommits() error {
 		)
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C Pushed release commit to %s",
-		log.ColorText(log.ColorGreen, "origin")))
+	log.Print(log.Release, "\uF00C Pushed release commit to %s",
+		log.ColorText(log.ColorGreen, "origin"))
 	return nil
 }
 
@@ -138,7 +136,7 @@ func (tb *ToolBase) PushGitTag(v *semver.Version) error {
 		)
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C Pushed git tag: %s",
-		log.ColorText(log.ColorGreen, tag)))
+	log.Print(log.Release, "\uF00C Pushed git tag: %s",
+		log.ColorText(log.ColorGreen, tag))
 	return nil
 }

@@ -1,3 +1,4 @@
+// Package github includes github specific structs
 package github
 
 /*
@@ -27,5 +28,5 @@ type Tag struct {
 
 type Commit struct {
 	Sha string `json:"sha"`
-	Url string `json:"url"`
+	URL string `json:"url"`
 }

@@ -5,7 +5,7 @@ package main
 
 import (
 	"github.com/nekoman-hq/neko-cli/cmd"
-	_ "github.com/nekoman-hq/neko-cli/internal/release/tools"
+	_ "github.com/nekoman-hq/neko-cli/internal/release/tool"
 )
 
 func main() {

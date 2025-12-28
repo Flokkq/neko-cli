@@ -1,3 +1,4 @@
+// Package init includes the init wizard of each release system
 package init
 
 /*

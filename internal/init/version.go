@@ -18,7 +18,6 @@ func askInitialVersion(cfg *config.NekoConfig) {
 		Default: "0.1.0",
 		Help:    "Semantic Versioning (MAJOR.MINOR.PATCH)",
 	}, &cfg.Version)
-
 	if err != nil {
 		errors.Error(
 			"Version input failed",
@@ -27,6 +26,4 @@ func askInitialVersion(cfg *config.NekoConfig) {
 		)
 		return
 	}
-
-	return
 }

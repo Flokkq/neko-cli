@@ -1,3 +1,4 @@
+// Package git includes operations using git or git-cli
 package git
 
 /*
@@ -51,6 +52,7 @@ func LatestRelease(repoInfo *RepoInfo) github.Release {
 		err := Body.Close()
 		if err != nil {
 			// Error log not needed normally
+			return
 		}
 	}(resp.Body)
 
@@ -89,6 +91,6 @@ func LatestRelease(repoInfo *RepoInfo) github.Release {
 		)
 	}
 
-	log.V(log.Release, fmt.Sprintf("\uF00C Successfully received release information from remote!"))
+	log.V(log.Release, "\uF00C Successfully received release information from remote!")
 	return release
 }

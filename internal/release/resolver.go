@@ -38,12 +38,10 @@ func ResolveReleaseType(version *semver.Version, args []string, t Tool) (Type, e
 		newVer := NextVersion(version, rt)
 
 		log.Print(log.Release,
-			fmt.Sprintf(
-				"Applying %s (%s \uF178 %s)",
-				log.ColorText(log.ColorPurple, string(rt)),
-				version.String(),
-				log.ColorText(log.ColorCyan, newVer.String()),
-			),
+			"Applying %s (%s \uF178 %s)",
+			log.ColorText(log.ColorPurple, string(rt)),
+			version.String(),
+			log.ColorText(log.ColorCyan, newVer.String()),
 		)
 
 		return rt, nil
