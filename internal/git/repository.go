@@ -1,3 +1,4 @@
+// Package git includes operations using git or git-cli
 package git
 
 /*
@@ -37,7 +38,6 @@ func Current() (*RepoInfo, error) {
 
 	cmd := exec.Command("git", "remote", "-v")
 	output, err := cmd.CombinedOutput()
-
 	if err != nil {
 		errors.Fatal(
 			"Not a Git Repository",

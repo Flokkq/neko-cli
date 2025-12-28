@@ -19,7 +19,6 @@ func askReleaseSystem(cfg *config.NekoConfig) {
 		Message: "Which release system should be used?",
 		Options: releaseOptionsFor(cfg.ProjectType),
 	}, &input)
-
 	if err != nil {
 		errors.Error(
 			"Release system selection failed",
@@ -38,6 +37,4 @@ func askReleaseSystem(cfg *config.NekoConfig) {
 		)
 		return
 	}
-
-	return
 }

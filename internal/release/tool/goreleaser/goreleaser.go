@@ -1,3 +1,4 @@
+// Package goreleaser includes the goreleaser release-system logic
 package goreleaser
 
 /*
@@ -28,7 +29,6 @@ func (g *GoReleaser) Name() string {
 }
 
 func (g *GoReleaser) Init(_ *config.NekoConfig) error {
-
 	g.RequireBinary(g.Name())
 
 	runGoreleaserInit()
@@ -41,20 +41,19 @@ func (g *GoReleaser) SupportsSurvey() bool {
 }
 
 func (g *GoReleaser) Release(v *semver.Version) error {
-
 	if err := g.CreateReleaseCommit(v); err != nil {
 		return err
 	}
 
-	if err := g.ToolBase.CreateGitTag(v); err != nil {
+	if err := g.CreateGitTag(v); err != nil {
 		return err
 	}
 
-	if err := g.ToolBase.PushCommits(); err != nil {
+	if err := g.PushCommits(); err != nil {
 		return err
 	}
 
-	if err := g.ToolBase.PushGitTag(v); err != nil {
+	if err := g.PushGitTag(v); err != nil {
 		return err
 	}
 
@@ -70,14 +69,11 @@ func (g *GoReleaser) Release(v *semver.Version) error {
 }
 
 func runGoreleaserInit() {
-
 	if _, err := os.Stat(".goreleaser.yaml"); err == nil {
 		log.Print(
 			log.Init,
-			fmt.Sprintf(
-				"Skipping goreleaser init, %s already exists",
-				log.ColorText(log.ColorCyan, "goreleaser.yml"),
-			),
+			"Skipping goreleaser init, %s already exists",
+			log.ColorText(log.ColorCyan, "goreleaser.yml"),
 		)
 		return
 	} else if !os.IsNotExist(err) {
@@ -97,7 +93,6 @@ func runGoreleaserInit() {
 
 	cmd := exec.Command("goreleaser", "init")
 	output, err := cmd.CombinedOutput()
-
 	if err != nil {
 		errors.Fatal(
 			"Failed to initialize goreleaser",
@@ -108,10 +103,8 @@ func runGoreleaserInit() {
 
 	log.Print(
 		log.Init,
-		fmt.Sprintf(
-			"\uF00C  Successfully initialized %s",
-			log.ColorText(log.ColorCyan, "goreleaser"),
-		),
+		"\uF00C  Successfully initialized %s",
+		log.ColorText(log.ColorCyan, "goreleaser"),
 	)
 }
 
@@ -124,7 +117,6 @@ func runGoreleaserCheck() {
 
 	cmd := exec.Command("goreleaser", "check")
 	output, err := cmd.CombinedOutput()
-
 	if err != nil {
 		errors.Fatal(
 			"Goreleaser configuration check failed",
@@ -135,10 +127,8 @@ func runGoreleaserCheck() {
 
 	log.Print(
 		log.Init,
-		fmt.Sprintf(
-			"\uF00C Configuration check passed for %s",
-			log.ColorText(log.ColorCyan, "goreleaser"),
-		),
+		"\uF00C Configuration check passed for %s",
+		log.ColorText(log.ColorCyan, "goreleaser"),
 	)
 }
 
@@ -154,12 +144,12 @@ func (g *GoReleaser) runGoReleaserDryRun() error {
 			"GoReleaser dry run failed",
 			fmt.Sprintf("This is a warning - proceeding anyway: %s", strings.TrimSpace(string(output))),
 		)
-		log.Print(log.Release, fmt.Sprintf("\u26A0 Dry run failed, but continuing with release"))
+		log.Print(log.Release, "\u26A0 Dry run failed, but continuing with release")
 		return nil
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C GoReleaser dry run %s",
-		log.ColorText(log.ColorGreen, "successful")))
+	log.Print(log.Release, "\uF00C GoReleaser dry run %s",
+		log.ColorText(log.ColorGreen, "successful"))
 	return nil
 }
 
@@ -178,8 +168,8 @@ func (g *GoReleaser) runGoReleaserRelease() error {
 		)
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C GoReleaser release %s",
-		log.ColorText(log.ColorGreen, "successful")))
+	log.Print(log.Release, "\uF00C GoReleaser release %s",
+		log.ColorText(log.ColorGreen, "successful"))
 	return nil
 }
 

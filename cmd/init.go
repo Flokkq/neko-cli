@@ -1,3 +1,4 @@
+// Package cmd Initializes all available commdands
 package cmd
 
 /*

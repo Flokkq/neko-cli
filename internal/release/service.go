@@ -1,3 +1,4 @@
+// Package release includes all neko cli release logic
 package release
 
 /*
@@ -40,15 +41,13 @@ func (rs *Service) Run(args []string) error {
 	}
 
 	log.Print(log.Release,
-		fmt.Sprintf("Release system detected: %s",
-			log.ColorText(log.ColorPurple, releaser.Name()),
-		),
+		"Release system detected: %s",
+		log.ColorText(log.ColorPurple, releaser.Name()),
 	)
 
 	log.Print(log.Release,
-		fmt.Sprintf("Latest version tag extracted successfully \uF178 %s",
-			log.ColorText(log.ColorCyan, version.String()),
-		),
+		"Latest version tag extracted successfully \uF178 %s",
+		log.ColorText(log.ColorCyan, version.String()),
 	)
 
 	rt, err := ResolveReleaseType(version, args, releaser)
@@ -60,7 +59,7 @@ func (rs *Service) Run(args []string) error {
 		)
 	}
 
-	log.Print(log.VersionGuard, fmt.Sprintf("\uF00C All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!")))
+	log.Print(log.VersionGuard, "\uF00C All checks have succeeded. %s", log.ColorText(log.ColorGreen, "Starting release now!"))
 
 	newVersion := NextVersion(version, rt)
 
@@ -78,8 +77,8 @@ func (rs *Service) Run(args []string) error {
 		)
 	}
 
-	log.Print(log.Release, fmt.Sprintf("\uF00C Successfully released version %s",
-		log.ColorText(log.ColorCyan, newVersion.String())))
+	log.Print(log.Release, "\uF00C Successfully released version %s",
+		log.ColorText(log.ColorCyan, newVersion.String()))
 
 	return nil
 }

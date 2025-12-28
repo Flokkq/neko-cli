@@ -1,3 +1,4 @@
+// Package log includes all helper functions to print corrext output
 package log
 
 /*

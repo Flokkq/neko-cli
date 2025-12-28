@@ -1,3 +1,4 @@
+// Package version includes build and status information of neko cli and the current Repository
 package version
 
 /*

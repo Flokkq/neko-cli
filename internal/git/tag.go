@@ -1,3 +1,4 @@
+// Package git includes operations using git or git-cli
 package git
 
 import (

@@ -1,3 +1,4 @@
+// Package config is mainly for the implementation of .neko.json
 package config
 
 /*
@@ -6,8 +7,10 @@ package config
 @Since      17.12.2025
 */
 
-type ProjectType string
-type ReleaseSystem string
+type (
+	ProjectType   string
+	ReleaseSystem string
+)
 
 const (
 	ProjectTypeFrontend ProjectType = "frontend"
@@ -27,8 +30,8 @@ type NekoConfig struct {
 	ProjectType   ProjectType   `json:"project-type"`
 	ReleaseSystem ReleaseSystem `json:"release-system"`
 	Version       string        `json:"version"`
-	//TagName 	  string 		`json:"tag-name"`   (No implementation yet)
-	//TokenName	  string		`json:"token-name"`	(No implementation yet)
+	// TagName 	  string 		`json:"tag-name"`   (No implementation yet)
+	// TokenName	  string		`json:"token-name"`	(No implementation yet)
 }
 
 func (p ProjectType) IsValid() bool {

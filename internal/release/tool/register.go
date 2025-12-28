@@ -1,4 +1,5 @@
-package tools
+// Package tool imports all release systems so init gets called<D-s>
+package tool
 
 /*
 @Author     Benjamin Senekowitsch
@@ -8,8 +9,8 @@ package tools
 
 import (
 	// Register all release tools
-	_ "github.com/nekoman-hq/neko-cli/internal/release/tools/goreleaser"
-	_ "github.com/nekoman-hq/neko-cli/internal/release/tools/jreleaser"
+	_ "github.com/nekoman-hq/neko-cli/internal/release/tool/goreleaser"
+	_ "github.com/nekoman-hq/neko-cli/internal/release/tool/jreleaser"
 	// _ "git.com/nekoman-hq/neko-cli/internal/release/semantic-release"
 	// More tools here
 )

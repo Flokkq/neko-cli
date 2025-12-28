@@ -1,3 +1,4 @@
+// Package jreleaser includes the jreleaser release-system logic
 package jreleaser
 
 /*
@@ -40,7 +41,7 @@ func (j *JReleaser) Init(cfg *config.NekoConfig) error {
 	j.runJReleaserInit(cfg)
 	j.runJReleaserCheck()
 
-	log.Print(log.Init, fmt.Sprintf("\uF00C Initialization complete for %s", log.ColorText(log.ColorCyan, j.Name())))
+	log.Print(log.Init, "\uF00C Initialization complete for %s", log.ColorText(log.ColorCyan, j.Name()))
 	return nil
 }
 
@@ -49,11 +50,11 @@ func (j *JReleaser) Release(v *semver.Version) error {
 		return err
 	}
 
-	if err := j.ToolBase.CreateReleaseCommit(v); err != nil {
+	if err := j.CreateReleaseCommit(v); err != nil {
 		return err
 	}
 
-	if err := j.ToolBase.PushCommits(); err != nil {
+	if err := j.PushCommits(); err != nil {
 		return err
 	}
 
@@ -82,10 +83,8 @@ func (j *JReleaser) runJReleaserInit(cfg *config.NekoConfig) {
 	if _, err := os.Stat("jreleaser.yml"); err == nil {
 		log.Print(
 			log.Init,
-			fmt.Sprintf(
-				"Skipping jreleaser init, %s already exists",
-				log.ColorText(log.ColorCyan, "jreleaser.yml"),
-			),
+			"Skipping jreleaser init, %s already exists",
+			log.ColorText(log.ColorCyan, "jreleaser.yml"),
 		)
 		return
 	} else if !os.IsNotExist(err) {
@@ -168,14 +167,13 @@ func (j *JReleaser) runJReleaserInit(cfg *config.NekoConfig) {
 			errors.ErrConfigWrite,
 		)
 	}
-	log.Print(log.Init, fmt.Sprintf("\uF00C JReleaser configuration generated for %s", log.ColorText(log.ColorCyan, cfg.ProjectName)))
+	log.Print(log.Init, "\uF00C JReleaser configuration generated for %s", log.ColorText(log.ColorCyan, cfg.ProjectName))
 }
 
 func (j *JReleaser) runJReleaserCheck() {
 	log.V(log.Init,
-		fmt.Sprintf("Checking JReleaser configuration: %s",
-			log.ColorText(log.ColorGreen, "jreleaser config"),
-		),
+		"Checking JReleaser configuration: %s",
+		log.ColorText(log.ColorGreen, "jreleaser config"),
 	)
 
 	output, err := executeJReleaserCommand("config")
@@ -189,10 +187,8 @@ func (j *JReleaser) runJReleaserCheck() {
 
 	log.Print(
 		log.Init,
-		fmt.Sprintf(
-			"\uF00C Configuration check passed for %s",
-			log.ColorText(log.ColorCyan, "jreleaser"),
-		),
+		"\uF00C Configuration check passed for %s",
+		log.ColorText(log.ColorCyan, "jreleaser"),
 	)
 }
 
@@ -228,9 +224,8 @@ func (j *JReleaser) syncJReleaser(v *semver.Version) error {
 	}
 
 	log.Print(log.Release,
-		fmt.Sprintf("\uF00C JReleaser version updated to %s",
-			log.ColorText(log.ColorGreen, v.String()),
-		),
+		"\uF00C JReleaser version updated to %s",
+		log.ColorText(log.ColorGreen, v.String()),
 	)
 
 	return nil
@@ -263,10 +258,8 @@ func (j *JReleaser) runJReleaserDryRun() error {
 
 	log.Print(
 		log.Release,
-		fmt.Sprintf(
-			"\uF00C JReleaser dry run %s",
-			log.ColorText(log.ColorGreen, "successful"),
-		),
+		"\uF00C JReleaser dry run %s",
+		log.ColorText(log.ColorGreen, "successful"),
 	)
 	return nil
 }
@@ -297,10 +290,8 @@ func (j *JReleaser) runJReleaserRelease() error {
 
 	log.Print(
 		log.Release,
-		fmt.Sprintf(
-			"\uF00C JReleaser release %s",
-			log.ColorText(log.ColorGreen, "successful"),
-		),
+		"\uF00C JReleaser release %s",
+		log.ColorText(log.ColorGreen, "successful"),
 	)
 	return nil
 }
