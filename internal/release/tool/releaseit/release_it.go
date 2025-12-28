@@ -3,9 +3,12 @@ package releaseit
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/nekoman-hq/neko-cli/internal/config"
+	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/log"
 	"github.com/nekoman-hq/neko-cli/internal/release"
 )
@@ -25,13 +28,9 @@ func (r *ReleaseIt) Init(cfg *config.NekoConfig) error {
 	// npm init release-it
 	// validate with npx release-it version
 
-	log.V(log.Init, fmt.Sprintf("Initializing %s for project %s@%s",
-		log.ColorText(log.ColorGreen, r.Name()),
-		cfg.ProjectName,
-		cfg.Version,
-	))
-
-	log.Print(log.Init, "\uF00C Initialization complete for %s", log.ColorText(log.ColorCyan, r.Name()))
+	r.RequireBinary("npm")
+	runReleaseItInit()
+	runReleaseItCheck()
 
 	return nil
 }
@@ -48,6 +47,76 @@ func (r *ReleaseIt) Survey(v *semver.Version) (release.Type, error) {
 
 func (r *ReleaseIt) SupportsSurvey() bool {
 	return true
+}
+
+func runReleaseItInit() {
+	if _, err := os.Stat(".release-it.json"); err == nil {
+		log.Print(
+			log.Init,
+			"Skipping ReleaseIt init, %s already exists",
+			log.ColorText(log.ColorCyan, ".release-it.json"),
+		)
+		return
+	} else if !os.IsNotExist(err) {
+		errors.Fatal(
+			"Failed to check .release-it.json",
+			err.Error(),
+			errors.ErrFileAccess,
+		)
+		return
+	}
+
+	if _, err := os.Stat("package.json"); os.IsNotExist(err) {
+		errors.Warning(
+			"Project not correctly initialized",
+			"No %s found - this doesn't appear to be a Node.js project",
+		)
+	}
+
+	log.V(log.Init,
+		fmt.Sprintf("Initializing release-it: %s",
+			log.ColorText(log.ColorGreen, "npm install -D release-it"),
+		),
+	)
+
+	cmd := exec.Command("npm", "install", "-D", "release-it")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		errors.Fatal(
+			"Failed to initialize release-it",
+			fmt.Sprintf("Command failed: %s\nOutput: %s", err.Error(), string(output)),
+			errors.ErrDependencyMissing,
+		)
+	}
+
+	log.Print(
+		log.Init,
+		"\uF00C  Successfully initialized %s",
+		log.ColorText(log.ColorCyan, "release-it"),
+	)
+}
+
+func runReleaseItCheck() {
+	log.V(log.Init,
+		fmt.Sprintf("Verifying release-it installation: %s",
+			log.ColorText(log.ColorGreen, "npx release-it -v"),
+		),
+	)
+	cmd := exec.Command("npx", "release-it", "-v")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		errors.Fatal(
+			"Failed to verify release-it installation",
+			fmt.Sprintf("Command failed: %s\nOutput: %s", err.Error(), string(output)),
+			errors.ErrDependencyMissing,
+		)
+	}
+	log.Print(
+		log.Init,
+		"\uF00C  Successfully verified %s installation (version: %s)",
+		log.ColorText(log.ColorCyan, "release-it"),
+		log.ColorText(log.ColorGreen, string(output)),
+	)
 }
 
 func init() {
