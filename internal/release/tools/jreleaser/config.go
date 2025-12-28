@@ -94,7 +94,7 @@ type Category struct {
 }
 
 func LoadConfig() (*Config, error) {
-	data, err := os.ReadFile(".jreleaser.yml")
+	data, err := os.ReadFile("jreleaser.yml")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
