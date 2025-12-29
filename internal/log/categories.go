@@ -14,6 +14,7 @@ const (
 	Preflight    Category = "pre-flight"
 	VersionGuard Category = "version-guard"
 	Release      Category = "release"
+	History      Category = "history"
 )
 
 var categoryColors = map[Category]string{
@@ -22,4 +23,5 @@ var categoryColors = map[Category]string{
 	Preflight:    ColorBrightYellow,
 	VersionGuard: ColorBrightBlue,
 	Release:      ColorBrightGreen,
+	History:      ColorYellow,
 }
