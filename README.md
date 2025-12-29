@@ -44,21 +44,21 @@ Run the release process using the detected or configured tool.
 ### `neko version`
 Show current version of this repo.  
 **Args / Flags:**
-- `--set=<version>` : set specific version (In Progress)
+- `--set=<version>` : set specific version (In Progress - After full release)
 
 ### `neko validate`
 Show or validate the Neko configuration.  
 **Args / Flags:**
 - `--config-show` : display current configuration
 
-### `neko history` (In Progress - After full release)
+### `neko history` 
 Show release/tag history.  
 
 ### `neko status` (In Progress - After full release)
 Display current release status.  
 **Checks include:** git clean state, branch, version file, changelog status
 
-### `neko check-release` (In Progress - After full release))
+### `neko check-release` (In Progress - After full release)
 Validate whether the project is ready for release (pre-flight checks).
 
 

@@ -22,6 +22,11 @@ type RepoInfo struct {
 	Repo  string
 }
 
+type Contributor struct {
+	Commits string
+	Author  string
+}
+
 func Fetch() {
 	log.V(log.VersionGuard, fmt.Sprintf("%s (Updating repository information)",
 		log.ColorText(log.ColorGreen, "git fetch"),
@@ -206,4 +211,137 @@ func IsUpToDate() error {
 
 	log.V(log.Preflight, "Branch is up to date with upstream")
 	return nil
+}
+
+// CurrentBranch returns the name of the current branch
+func CurrentBranch() string {
+	log.V(log.History, "Fetching current branch: "+
+		log.ColorText(log.ColorGreen, "git rev-parse --abbrev-ref HEAD"))
+
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	branchOut, err := cmd.Output()
+	if err != nil {
+		errors.Fatal(
+			"Failed to get current branch",
+			fmt.Sprintf("Command failed: %s", err.Error()),
+			errors.ErrFileAccess,
+		)
+		return ""
+	}
+
+	branch := strings.TrimSpace(string(branchOut))
+	return branch
+}
+
+// LastCommit returns the last commit information
+func LastCommit() string {
+	log.V(log.History, "Fetching last commit: "+
+		log.ColorText(log.ColorGreen, "git log -1 --pretty=format:%%h '%%s' (%%cr)"))
+
+	cmd := exec.Command("git", "log", "-1", "--pretty=format:%h '%s' (%cr)")
+	lastCommitOut, err := cmd.Output()
+	if err != nil {
+		errors.Fatal(
+			"Failed to get last commit",
+			fmt.Sprintf("Command failed: %s", err.Error()),
+			errors.ErrFileAccess,
+		)
+		return ""
+	}
+
+	lastCommit := strings.TrimSpace(string(lastCommitOut))
+	return lastCommit
+}
+
+// TotalCommits returns the total number of commits as a string
+func TotalCommits() string {
+	log.V(log.History, "Counting total commits: "+
+		log.ColorText(log.ColorGreen, "git rev-list --count HEAD"))
+
+	cmd := exec.Command("git", "rev-list", "--count", "HEAD")
+	totalCommitsOut, err := cmd.Output()
+	if err != nil {
+		errors.Warning(
+			"Failed to count commits",
+			fmt.Sprintf("Command failed: %s", err.Error()),
+		)
+		return "0"
+	}
+
+	return strings.TrimSpace(string(totalCommitsOut))
+}
+
+// FilesCount returns the number of tracked files
+func FilesCount() int {
+	log.V(log.History, "Counting tracked files: "+
+		log.ColorText(log.ColorGreen, "git ls-files"))
+
+	cmd := exec.Command("git", "ls-files")
+	filesOut, err := cmd.Output()
+	if err != nil {
+		errors.Warning(
+			"Failed to count files",
+			fmt.Sprintf("Command failed: %s", err.Error()),
+		)
+		return 0
+	}
+
+	files := strings.Split(strings.TrimSpace(string(filesOut)), "\n")
+	return len(files)
+}
+
+// RepoSize returns the repository size using du command
+func RepoSize() string {
+	log.V(log.History, "Calculating repository size: "+
+		log.ColorText(log.ColorGreen, "du -sh ."))
+
+	cmd := exec.Command("du", "-sh", ".")
+	sizeOut, err := cmd.Output()
+	if err != nil {
+		log.V(log.History, "Could not determine repository size (du command not available)")
+		return ""
+	}
+
+	fields := strings.Fields(string(sizeOut))
+	if len(fields) == 0 {
+		return ""
+	}
+
+	return fields[0]
+}
+
+// Contributors returns a list of contributors with their commit counts
+func Contributors() []Contributor {
+	log.V(log.History, "Fetching contributors: "+
+		log.ColorText(log.ColorGreen, "git shortlog -sne HEAD"))
+
+	cmd := exec.Command("git", "shortlog", "-sne", "HEAD")
+	contrib, err := cmd.Output()
+	if err != nil {
+		errors.Fatal(
+			"Failed to fetch contributors",
+			fmt.Sprintf("Command failed: %s", err.Error()),
+			errors.ErrFileAccess,
+		)
+		return []Contributor{}
+	}
+
+	contribLines := strings.Split(strings.TrimSpace(string(contrib)), "\n")
+	log.V(log.History, fmt.Sprintf("Found %d contributors", len(contribLines)))
+
+	contributors := make([]Contributor, 0, len(contribLines))
+	for _, line := range contribLines {
+		parts := strings.Fields(line)
+		if len(parts) < 2 {
+			log.V(log.History, fmt.Sprintf("Skipping invalid contributor line: %s", line))
+			continue
+		}
+
+		contributors = append(contributors, Contributor{
+			Commits: parts[0],
+			Author:  strings.Join(parts[1:], " "),
+		})
+	}
+
+	return contributors
 }
