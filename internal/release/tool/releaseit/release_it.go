@@ -115,7 +115,7 @@ func (r *ReleaseIt) runReleaseItCheck() {
 		)
 	}
 	log.Print(
-		log.Init,
+		log.Release,
 		"\uF00C  Successfully verified %s installation ( version: %s )",
 		log.ColorText(log.ColorCyan, "release-it"),
 		log.ColorText(log.ColorGreen, string(output)),
@@ -124,7 +124,7 @@ func (r *ReleaseIt) runReleaseItCheck() {
 
 func (r *ReleaseIt) runReleaseItRelease(v *semver.Version) error {
 	versionStr := v.String()
-	log.V(log.Init,
+	log.V(log.Release,
 		fmt.Sprintf("Running release-it: %s",
 			log.ColorText(log.ColorGreen, fmt.Sprintf("npx release-it %s --ci --no-git.requireCleanWorkingDir", versionStr)),
 		),
@@ -134,11 +134,6 @@ func (r *ReleaseIt) runReleaseItRelease(v *semver.Version) error {
 	if err != nil {
 		return fmt.Errorf("release failed: %s\nOutput: %s", err.Error(), string(output))
 	}
-	log.Print(
-		log.Init,
-		"\uF00C  Successfully released version %s",
-		log.ColorText(log.ColorCyan, versionStr),
-	)
 	return nil
 }
 
