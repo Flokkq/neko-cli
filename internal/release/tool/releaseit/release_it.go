@@ -23,7 +23,7 @@ func (r *ReleaseIt) Name() string {
 
 func (r *ReleaseIt) Init(cfg *config.NekoConfig) error {
 	r.RequireBinary("npm")
-	r.runReleaseItInit()
+	r.runReleaseItInit(cfg)
 	r.runReleaseItCheck()
 
 	return nil
@@ -44,7 +44,7 @@ func (r *ReleaseIt) SupportsSurvey() bool {
 	return true
 }
 
-func (r *ReleaseIt) runReleaseItInit() {
+func (r *ReleaseIt) runReleaseItInit(cfg *config.NekoConfig) {
 	if _, err := os.Stat(".release-it.json"); err == nil {
 		log.Print(
 			log.Init,
@@ -84,11 +84,11 @@ func (r *ReleaseIt) runReleaseItInit() {
 		)
 	}
 
-	cfg, err := InitDefaultConfig()
+	rcfg, err := InitDefaultConfig(cfg.ProjectName)
 	if err != nil {
 		errors.Fatal("Failed to create default config", err.Error(), errors.ErrFileAccess)
 	}
-	if err := SaveConfig(cfg); err != nil {
+	if err := SaveConfig(rcfg); err != nil {
 		errors.Fatal("Failed to save .release-it.json", err.Error(), errors.ErrFileAccess)
 	}
 
