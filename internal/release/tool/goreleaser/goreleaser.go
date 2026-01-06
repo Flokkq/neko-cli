@@ -30,7 +30,6 @@ func (g *GoReleaser) Name() string {
 
 func (g *GoReleaser) Init(_ *config.NekoConfig) error {
 	g.RequireBinary(g.Name())
-
 	runGoreleaserInit()
 	runGoreleaserCheck()
 	return nil
