@@ -10,10 +10,8 @@
   [![GitHub release](https://img.shields.io/github/v/release/nekoman-hq/neko-cli?style=flat-square)](https://github.com/nekoman-hq/neko-cli/releases)
   [![Go Report Card](https://goreportcard.com/badge/github.com/nekoman-hq/neko-cli)](https://goreportcard.com/report/github.com/nekoman-hq/neko-cli)
   [![Issues](https://img.shields.io/github/issues/nekoman-hq/neko-cli?style=flat-square)](https://github.com/nekoman-hq/neko-cli/issues)
-  [![Pull Requests](https://img.shields.io/github/issues-pr/nekoman-hq/neko-cli?style=flat-square)](https://github.com/nekoman-hq/neko-cli/pulls)
   [![Last Commit](https://img.shields.io/github/last-commit/nekoman-hq/neko-cli?style=flat-square)](https://github.com/nekoman-hq/neko-cli/commits)
   [![Contributors](https://img.shields.io/github/contributors/nekoman-hq/neko-cli?style=flat-square)](https://github.com/nekoman-hq/neko-cli/graphs/contributors)
-  [![Repo Size](https://img.shields.io/github/repo-size/nekoman-hq/neko-cli?style=flat-square)](https://github.com/nekoman-hq/neko-cli)
 
 ---
 
