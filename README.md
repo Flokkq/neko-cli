@@ -1,6 +1,6 @@
 
 <div align="center">
-<h1>Neko Cli</h1>
+<h1>Neko CLI</h1>
 <img alt="Neko-Cli Logo" height="500" src="neko-cli-logo.png" width="500"/>
 
 <br />
