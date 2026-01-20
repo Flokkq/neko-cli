@@ -18,6 +18,8 @@ import (
 type ReleaseIt struct {
 	release.ToolBase
 
+	packageManager string // "npm" or "bun"
+
 	State struct {
 		PreHead           string
 		ReleaseCommitHash string
@@ -34,8 +36,48 @@ func (r *ReleaseIt) Name() string {
 	return "release-it"
 }
 
+// detectPackageManager checks for lock files to determine the package manager
+func (r *ReleaseIt) detectPackageManager() string {
+	if _, err := os.Stat("bun.lockb"); err == nil {
+		log.V(log.Init,
+			fmt.Sprintf("Detected package manager: %s (found %s)",
+				log.ColorText(log.ColorCyan, "bun"),
+				log.ColorText(log.ColorYellow, "bun.lockb"),
+			),
+		)
+		return "bun"
+	}
+	if _, err := os.Stat("package-lock.json"); err == nil {
+		log.V(log.Init,
+			fmt.Sprintf("Detected package manager: %s (found %s)",
+				log.ColorText(log.ColorCyan, "npm"),
+				log.ColorText(log.ColorYellow, "package-lock.json"),
+			),
+		)
+		return "npm"
+	}
+	// Default to npm if no lock file is found
+	log.V(log.Init,
+		fmt.Sprintf("No lock file found, defaulting to %s",
+			log.ColorText(log.ColorCyan, "npm"),
+		),
+	)
+	return "npm"
+}
+
+// getRunCommand returns the appropriate run command (npx or bunx)
+func (r *ReleaseIt) getRunCommand() string {
+	if r.packageManager == "bun" {
+		return "bunx"
+	}
+	return "npx"
+}
+
 func (r *ReleaseIt) Init(cfg *config.NekoConfig) error {
-	if err := r.RequireBinary("npm"); err != nil {
+	// Detect package manager first
+	r.packageManager = r.detectPackageManager()
+
+	if err := r.RequireBinary(r.packageManager); err != nil {
 		return err
 	}
 
@@ -118,13 +160,24 @@ func (r *ReleaseIt) runReleaseItInit(cfg *config.NekoConfig) error {
 		)
 	}
 
+	installCmd := fmt.Sprintf("%s install -D release-it", r.packageManager)
+	if r.packageManager == "bun" {
+		installCmd = "bun add -D release-it"
+	}
+
 	log.V(log.Init,
 		fmt.Sprintf("Initializing release-it: %s",
-			log.ColorText(log.ColorGreen, "npm install -D release-it"),
+			log.ColorText(log.ColorGreen, installCmd),
 		),
 	)
 
-	cmd := exec.Command("npm", "install", "-D", "release-it")
+	var cmd *exec.Cmd
+	if r.packageManager == "bun" {
+		cmd = exec.Command("bun", "add", "-D", "release-it")
+	} else {
+		cmd = exec.Command("npm", "install", "-D", "release-it")
+	}
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf(
@@ -150,12 +203,16 @@ func (r *ReleaseIt) runReleaseItInit(cfg *config.NekoConfig) error {
 }
 
 func (r *ReleaseIt) runReleaseItCheck() error {
+	runCmd := r.getRunCommand()
+	checkCmd := fmt.Sprintf("%s release-it -v", runCmd)
+
 	log.V(log.Init,
 		fmt.Sprintf("Verifying release-it installation: %s",
-			log.ColorText(log.ColorGreen, "npx release-it -v"),
+			log.ColorText(log.ColorGreen, checkCmd),
 		),
 	)
-	cmd := exec.Command("npx", "release-it", "-v")
+
+	cmd := exec.Command(runCmd, "release-it", "-v")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf(
@@ -174,12 +231,16 @@ func (r *ReleaseIt) runReleaseItCheck() error {
 
 func (r *ReleaseIt) runReleaseItRelease(v *semver.Version) error {
 	versionStr := v.String()
+	runCmd := r.getRunCommand()
+	releaseCmd := fmt.Sprintf("%s release-it %s --ci --no-git.requireCleanWorkingDir", runCmd, versionStr)
+
 	log.V(log.Release,
 		fmt.Sprintf("Running release-it: %s",
-			log.ColorText(log.ColorGreen, fmt.Sprintf("npx release-it %s --ci --no-git.requireCleanWorkingDir", versionStr)),
+			log.ColorText(log.ColorGreen, releaseCmd),
 		),
 	)
-	cmd := exec.Command("npx", "release-it", versionStr, "--ci", "--no-git.requireCleanWorkingDir")
+
+	cmd := exec.Command(runCmd, "release-it", versionStr, "--ci", "--no-git.requireCleanWorkingDir")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("release failed: %s\nOutput: %s", err.Error(), string(output))

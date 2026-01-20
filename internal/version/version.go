@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nekoman-hq/neko-cli/internal/errors"
 	"github.com/nekoman-hq/neko-cli/internal/git"
 	"github.com/nekoman-hq/neko-cli/internal/git/github"
 	"github.com/nekoman-hq/neko-cli/internal/log"
@@ -27,12 +28,14 @@ var (
 func Latest(repoInfo *git.RepoInfo) error {
 	release, err := git.LatestRelease(repoInfo)
 	if err != nil {
-		return err
+		errors.Warning("No Releases Found", fmt.Sprintf("Repository %s/%s has no releases yet.\n", repoInfo.Owner, repoInfo.Repo))
 	}
 
 	displayCLIVersion()
-	displayRelease(repoInfo, release)
 
+	if release != nil {
+		displayRelease(repoInfo, release)
+	}
 	return nil
 }
 
