@@ -36,9 +36,15 @@ func (r *ReleaseIt) Name() string {
 	return "release-it"
 }
 
+func (r *ReleaseIt) ensurePackageManager() {
+	if r.packageManager == "" {
+		r.packageManager = r.detectPackageManager()
+	}
+}
+
 // detectPackageManager checks for lock files to determine the package manager
 func (r *ReleaseIt) detectPackageManager() string {
-	if _, err := os.Stat("bun.lockb"); err == nil {
+	if _, err := os.Stat("bun.lock"); err == nil {
 		log.V(log.Init,
 			fmt.Sprintf("Detected package manager: %s (found %s)",
 				log.ColorText(log.ColorCyan, "bun"),
@@ -74,8 +80,7 @@ func (r *ReleaseIt) getRunCommand() string {
 }
 
 func (r *ReleaseIt) Init(cfg *config.NekoConfig) error {
-	// Detect package manager first
-	r.packageManager = r.detectPackageManager()
+	r.ensurePackageManager()
 
 	if err := r.RequireBinary(r.packageManager); err != nil {
 		return err
@@ -93,6 +98,8 @@ func (r *ReleaseIt) Init(cfg *config.NekoConfig) error {
 }
 
 func (r *ReleaseIt) Release(v *semver.Version) error {
+	r.ensurePackageManager()
+
 	pre, err := git.Head()
 	if err != nil {
 		return err
