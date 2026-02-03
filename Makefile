@@ -7,10 +7,26 @@ LDFLAGS := -X github.com/nekoman-hq/neko-cli/internal/version.Version=$(VERSION)
            -X github.com/nekoman-hq/neko-cli/internal/version.Date=$(DATE) \
            -X github.com/nekoman-hq/neko-cli/internal/version.BuiltBy=make
 
-.PHONY: build
+.PHONY: build install clean install-plugins test
+
 build:
 	go build -ldflags "$(LDFLAGS)" -o neko
 
-.PHONY: install
 install:
 	go install -ldflags "$(LDFLAGS)"
+
+# Plugins bauen und installieren
+install-plugins:
+	cd plugin/release && $(MAKE) install
+
+
+# Alles bauen und installieren
+all: build install-plugins
+
+clean:
+	rm -f neko
+	cd plugin/release && $(MAKE) clean || true
+	cd plugin/core && $(MAKE) clean || true
+
+test:
+	go test ./...

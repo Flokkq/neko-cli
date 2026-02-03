@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ! -f .neko.json ]; then
+if [ ! -f .release.neko.json ]; then
   echo "Error: .neko.json not found"
   exit 1
 fi
 
-VERSION_RAW=$(jq -r '.version // empty' .neko.json)
+VERSION_RAW=$(jq -r '.version // empty' .release.neko.json)
 
 if [ -z "$VERSION_RAW" ]; then
   echo "Error: version not found in .neko.json"
