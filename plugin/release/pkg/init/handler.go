@@ -81,7 +81,7 @@ func HandleInit(req plugin.Request) (*plugin.Response, error) {
 	}
 
 	// Validate the config
-	if err := config.Validate(&cfg); err != nil {
+	if err = config.Validate(&cfg); err != nil {
 		return &plugin.Response{
 			Status: "error",
 			Metadata: plugin.ResponseMetadata{
@@ -98,7 +98,7 @@ func HandleInit(req plugin.Request) (*plugin.Response, error) {
 	}
 
 	// Save the config
-	if err := config.SaveConfig(cfg); err != nil {
+	if err = config.SaveConfig(cfg); err != nil {
 		return &plugin.Response{
 			Status: "error",
 			Metadata: plugin.ResponseMetadata{
@@ -271,7 +271,7 @@ func getFlagBool(flags map[string]any, key string) bool {
 
 func buildNextSteps(cfg config.NekoConfig) []string {
 	steps := []string{
-		fmt.Sprintf("Use 'neko release' to create a release"),
+		"Use 'neko release' to create a release",
 	}
 
 	switch cfg.ReleaseSystem {

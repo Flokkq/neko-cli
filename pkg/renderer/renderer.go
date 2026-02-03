@@ -49,6 +49,8 @@ func RenderTo(resp *plugin.Response, format OutputFormat, w io.Writer) error {
 		return renderJSON(resp, w)
 	case FormatWide:
 		return renderTable(resp, w, true)
+	case FormatTable:
+		return renderTable(resp, w, false)
 	default:
 		return renderTable(resp, w, false)
 	}
@@ -81,24 +83,24 @@ func RenderDescribeTo(resp *plugin.Response, format OutputFormat, w io.Writer) e
 }
 
 func renderMetadataSection(resp *plugin.Response, w io.Writer) {
-	fmt.Fprintf(w, "\n%s%s━━━ Command Metadata ━━━%s\n",
+	_, _ = fmt.Fprintf(w, "\n%s%s━━━ Command Metadata ━━━%s\n",
 		log.ColorBold, log.ColorCyan, log.ColorReset)
 
-	fmt.Fprintf(w, "%sPlugin:%s     %s\n",
+	_, _ = fmt.Fprintf(w, "%sPlugin:%s     %s\n",
 		log.ColorBrightBlack, log.ColorReset, resp.Metadata.Plugin)
-	fmt.Fprintf(w, "%sCommand:%s    %s\n",
+	_, _ = fmt.Fprintf(w, "%sCommand:%s    %s\n",
 		log.ColorBrightBlack, log.ColorReset, resp.Metadata.Command)
-	fmt.Fprintf(w, "%sVersion:%s    %s\n",
+	_, _ = fmt.Fprintf(w, "%sVersion:%s    %s\n",
 		log.ColorBrightBlack, log.ColorReset, resp.Metadata.Version)
-	fmt.Fprintf(w, "%sTimestamp:%s  %s\n",
+	_, _ = fmt.Fprintf(w, "%sTimestamp:%s  %s\n",
 		log.ColorBrightBlack, log.ColorReset, resp.Metadata.Timestamp.Format("2006-01-02 15:04:05"))
-	fmt.Fprintf(w, "%sStatus:%s     %s\n",
+	_, _ = fmt.Fprintf(w, "%sStatus:%s     %s\n",
 		log.ColorBrightBlack, log.ColorReset, colorizeStatus(resp.Status))
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 }
 
 func renderLogsSection(logs []plugin.LogEntry, w io.Writer) {
-	fmt.Fprintf(w, "%s%s━━━ Execution Logs (%d entries) ━━━%s\n",
+	_, _ = fmt.Fprintf(w, "%s%s━━━ Execution Logs (%d entries) ━━━%s\n",
 		log.ColorYellow, log.ColorBold, len(logs), log.ColorReset)
 
 	for _, entry := range logs {
@@ -110,16 +112,16 @@ func renderLogsSection(logs []plugin.LogEntry, w io.Writer) {
 			categoryStr = fmt.Sprintf("[%s] ", entry.Category)
 		}
 
-		fmt.Fprintf(w, "%s%s %s%s%s%s\n",
+		_, _ = fmt.Fprintf(w, "%s%s %s%s%s%s\n",
 			log.ColorBrightBlack, entry.Timestamp,
 			levelColor, levelIcon, categoryStr,
 			log.ColorReset+entry.Message)
 	}
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 }
 
 func renderOutputSection(resp *plugin.Response, format OutputFormat, w io.Writer) {
-	fmt.Fprintf(w, "%s%s━━━ Output ━━━%s\n",
+	_, _ = fmt.Fprintf(w, "%s%s━━━ Output ━━━%s\n",
 		log.ColorGreen, log.ColorBold, log.ColorReset)
 
 	wide := format == FormatWide
@@ -174,6 +176,8 @@ func renderJSON(resp *plugin.Response, w io.Writer) error {
 // Automatically detects lists (any slice in data) and renders as table
 // Single objects are rendered as key-value pairs
 func renderTable(resp *plugin.Response, w io.Writer, wide bool) error {
+	_ = wide // TODO: implement wide output format with additional columns
+
 	if resp.Status == "error" {
 		return renderError(resp, w)
 	}
@@ -490,7 +494,7 @@ func renderKeyValue(data map[string]any, w io.Writer) error {
 		formattedValue := formatValue(v)
 		coloredValue := colorizeValue(k, formattedValue)
 
-		fmt.Fprintf(w, "%s%s:%s  %s\n",
+		_, _ = fmt.Fprintf(w, "%s%s:%s  %s\n",
 			log.ColorCyan, formattedKey, log.ColorReset, coloredValue)
 	}
 

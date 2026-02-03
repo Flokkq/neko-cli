@@ -21,7 +21,7 @@ func HandleContributors() (*plugin.Response, error) {
 		})
 	}
 
-	log.PluginPrint(log.Exec, "Successfully collected contributors", len(items))
+	log.PluginPrint(log.Exec, "Successfully collected contributors")
 
 	return &plugin.Response{
 		Status: "success",

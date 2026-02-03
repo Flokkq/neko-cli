@@ -1,179 +1,417 @@
 package cmd
 
 import (
-	"context"
+	"archive/tar"
+	"compress/gzip"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/nekoman-hq/neko-cli/pkg/dispatcher"
 	"github.com/nekoman-hq/neko-cli/pkg/plugin"
-	"github.com/nekoman-hq/neko-cli/pkg/renderer"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
+
+const (
+	defaultPluginRegistry = "https://api.github.com/repos/nekoman-hq/neko-cli/releases"
+)
+
+var pluginCmd = &cobra.Command{
+	Use:   "plugin",
+	Short: "Manage neko plugins",
+}
+
+var pluginListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List installed plugins",
+	RunE:  runPluginList,
+}
+
+var pluginAvailableCmd = &cobra.Command{
+	Use:   "available",
+	Short: "List available plugins from the registry",
+	RunE:  runPluginAvailable,
+}
+
+var pluginInstallCmd = &cobra.Command{
+	Use:   "install [plugin-name]",
+	Short: "Install a plugin from the registry",
+	Args:  cobra.ExactArgs(1),
+	RunE:  runPluginInstall,
+}
+
+var pluginUninstallCmd = &cobra.Command{
+	Use:   "uninstall [plugin-name]",
+	Short: "Uninstall a plugin",
+	Args:  cobra.ExactArgs(1),
+	RunE:  runPluginUninstall,
+}
+
+var (
+	installVersion string
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&outputFormat, "output", "table", "Output format (table, json, wide)")
-	rootCmd.PersistentFlags().BoolVar(&describe, "describe", false, "Include execution logs and metadata in output")
+	rootCmd.AddCommand(pluginCmd)
+	pluginCmd.AddCommand(pluginListCmd)
+	pluginCmd.AddCommand(pluginAvailableCmd)
+	pluginCmd.AddCommand(pluginInstallCmd)
+	pluginCmd.AddCommand(pluginUninstallCmd)
 
-	// Detect plugin directory
-	home, _ := os.UserHomeDir()
-	defaultPluginDir := filepath.Join(home, ".neko", "plugins")
-	pluginDir = os.Getenv("NEKO_PLUGIN_DIR") // For future use, allows custom plugin dir
-	if pluginDir == "" {
-		pluginDir = defaultPluginDir
-	}
+	pluginInstallCmd.Flags().StringVar(&installVersion, "version", "latest", "Version to install")
 }
 
-// CreatePluginCommand creates a cobra.Command for the given plugin manifest
-func CreatePluginCommand(manifest plugin.Manifest) *cobra.Command {
-	// Main command for every plugin e.g., "release", "deploy"
-	cmd := &cobra.Command{
-		Use:   manifest.Name,
-		Short: manifest.Description,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return executePlugin(manifest.Name, cmd, args)
-		},
-	}
-
-	// Subcommands for each plugin command e.g., "release init", "release create"
-	for _, pluginCmd := range manifest.Commands {
-		subCmd := createSubCommand(manifest.Name, pluginCmd)
-		cmd.AddCommand(subCmd)
-	}
-
-	return cmd
-}
-
-// createSubCommand creates a cobra.Command for the given plugin command with flags
-func createSubCommand(pluginName string, pluginCmd plugin.Command) *cobra.Command {
-	subCmd := &cobra.Command{
-		Use:   pluginCmd.Name,
-		Short: pluginCmd.Description,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return executePlugin(pluginName, cmd, args)
-		},
-	}
-
-	// Add flags from the plugin manifest
-	for _, flag := range pluginCmd.Flags {
-		addFlagToCommand(subCmd, flag)
-	}
-
-	return subCmd
-}
-
-// addFlagToCommand adds a flag to the command based on the flag definition
-func addFlagToCommand(cmd *cobra.Command, flag plugin.Flag) {
-	switch flag.Type {
-	case "string":
-		defaultVal := ""
-		if flag.Default != nil {
-			if s, ok := flag.Default.(string); ok {
-				defaultVal = s
-			}
-		}
-		cmd.Flags().String(flag.Name, defaultVal, flag.Description)
-	case "bool":
-		defaultVal := false
-		if flag.Default != nil {
-			if b, ok := flag.Default.(bool); ok {
-				defaultVal = b
-			}
-		}
-		cmd.Flags().Bool(flag.Name, defaultVal, flag.Description)
-	case "int":
-		defaultVal := 0
-		if flag.Default != nil {
-			if i, ok := flag.Default.(float64); ok {
-				defaultVal = int(i)
-			}
-		}
-		cmd.Flags().Int(flag.Name, defaultVal, flag.Description)
-	default:
-		// Default to string
-		cmd.Flags().String(flag.Name, "", flag.Description)
-	}
-
-	// Mark required flags
-	if flag.Required {
-		cmd.MarkFlagRequired(flag.Name)
-	}
-}
-
-// executePlugin dispatches the command to the plugin and renders the response
-func executePlugin(pluginName string, cmd *cobra.Command, args []string) error {
-	d := dispatcher.NewDispatcher(pluginDir)
-
-	req := plugin.Request{
-		Command: cmd.Name(),
-		Args:    args,
-		Flags:   extractFlags(cmd),
-		Context: plugin.Context{
-			WorkingDir: mustGetwd(),
-			User:       os.Getenv("USER"),
-			Verbose:    verbose,
-		},
-	}
-
-	ctx := context.Background()
-	resp, err := d.Dispatch(ctx, pluginName, req)
-	if err != nil {
-		return fmt.Errorf("failed to execute plugin: %w", err)
-	}
-
-	opts := renderer.RenderOptions{
-		Format:   renderer.OutputFormat(outputFormat),
-		Describe: describe,
-	}
-	return renderer.RenderWithOptions(resp, opts)
-}
-
-// extractFlags extracts the flags from the cobra.Command into a map
-func extractFlags(cmd *cobra.Command) map[string]any {
-	flags := make(map[string]any)
-
-	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-		if flag.Changed {
-			// Try to get typed value
-			switch flag.Value.Type() {
-			case "bool":
-				if b, err := cmd.Flags().GetBool(flag.Name); err == nil {
-					flags[flag.Name] = b
-				}
-			case "int":
-				if i, err := cmd.Flags().GetInt(flag.Name); err == nil {
-					flags[flag.Name] = i
-				}
-			default:
-				flags[flag.Name] = flag.Value.String()
-			}
-		}
-	})
-
-	return flags
-}
-
-// mustGetwd returns the current working directory or an empty string on error
-func mustGetwd() string {
-	wd, _ := os.Getwd()
-	return wd
-}
-
-// InitializePlugins loads plugins from the plugin directory and adds them to the root command
-func InitializePlugins() error {
+func runPluginList(cmd *cobra.Command, args []string) error {
 	d := dispatcher.NewDispatcher(pluginDir)
 
 	manifests, err := d.ListPlugins()
 	if err != nil {
+		if os.IsNotExist(err) {
+			fmt.Println("No plugins installed.")
+			fmt.Println("Use 'neko plugin available' to see available plugins.")
+			return nil
+		}
 		return fmt.Errorf("failed to list plugins: %w", err)
 	}
 
-	for _, manifest := range manifests {
-		cmd := CreatePluginCommand(manifest)
-		rootCmd.AddCommand(cmd)
+	if len(manifests) == 0 {
+		fmt.Println("No plugins installed.")
+		fmt.Println("Use 'neko plugin available' to see available plugins.")
+		return nil
+	}
+
+	fmt.Printf("%-15s %-10s %-40s %s\n", "NAME", "VERSION", "DESCRIPTION", "AUTHOR")
+	for _, m := range manifests {
+		fmt.Printf("%-15s %-10s %-40s %s\n", m.Name, m.Version, truncate(m.Description, 40), m.Author)
 	}
 
 	return nil
+}
+
+func runPluginAvailable(cmd *cobra.Command, args []string) error {
+	plugins, err := fetchAvailablePlugins()
+	if err != nil {
+		return fmt.Errorf("failed to fetch available plugins: %w", err)
+	}
+
+	if len(plugins) == 0 {
+		fmt.Println("No plugins available.")
+		return nil
+	}
+
+	fmt.Printf("%-15s %-15s %s\n", "NAME", "LATEST VERSION", "STATUS")
+
+	// Get installed plugins for comparison
+	d := dispatcher.NewDispatcher(pluginDir)
+	installedManifests, _ := d.ListPlugins()
+	installedMap := make(map[string]string)
+	for _, m := range installedManifests {
+		installedMap[m.Name] = m.Version
+	}
+
+	for _, p := range plugins {
+		status := "not installed"
+		if v, ok := installedMap[p.Name]; ok {
+			if v == p.Version {
+				status = "installed"
+			} else {
+				status = fmt.Sprintf("installed (%s)", v)
+			}
+		}
+		fmt.Printf("%-15s %-15s %s\n", p.Name, p.Version, status)
+	}
+
+	return nil
+}
+
+func runPluginInstall(cmd *cobra.Command, args []string) error {
+	pluginName := args[0]
+
+	fmt.Printf("Installing plugin '%s'...\n", pluginName)
+
+	// Determine version to install
+	version := installVersion
+	if version == "latest" {
+		latestVersion, err := getLatestVersion()
+		if err != nil {
+			return fmt.Errorf("failed to get latest version: %w", err)
+		}
+		version = latestVersion
+	}
+
+	// Build download URL
+	downloadURL, err := getPluginDownloadURL(pluginName, version)
+	if err != nil {
+		return fmt.Errorf("failed to get download URL: %w", err)
+	}
+
+	// Download and extract
+	if err := downloadAndInstallPlugin(pluginName, downloadURL); err != nil {
+		return fmt.Errorf("failed to install plugin: %w", err)
+	}
+
+	fmt.Printf("Plugin '%s' installed successfully!\n", pluginName)
+	return nil
+}
+
+func runPluginUninstall(cmd *cobra.Command, args []string) error {
+	pluginName := args[0]
+
+	installPath := filepath.Join(pluginDir, pluginName)
+	if _, err := os.Stat(installPath); os.IsNotExist(err) {
+		return fmt.Errorf("plugin '%s' is not installed", pluginName)
+	}
+
+	if err := os.RemoveAll(installPath); err != nil {
+		return fmt.Errorf("failed to uninstall plugin: %w", err)
+	}
+
+	fmt.Printf("Plugin '%s' uninstalled successfully!\n", pluginName)
+	return nil
+}
+
+// AvailablePlugin represents a plugin available in the registry
+type AvailablePlugin struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+func fetchAvailablePlugins() ([]AvailablePlugin, error) {
+	latestVersion, err := getLatestVersion()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get release assets
+	url := fmt.Sprintf("%s/tags/%s", defaultPluginRegistry, latestVersion)
+
+	resp, err := httpGetWithAuth(url)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch release: %s", resp.Status)
+	}
+
+	var release struct {
+		Assets []struct {
+			Name string `json:"name"`
+		} `json:"assets"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return nil, err
+	}
+
+	// Parse plugin names from assets
+	pluginMap := make(map[string]bool)
+	for _, asset := range release.Assets {
+		// Plugin assets follow pattern: plugin-{name}_{OS}_{Arch}.tar.gz
+		if strings.HasPrefix(asset.Name, "plugin-") {
+			parts := strings.Split(asset.Name, "_")
+			if len(parts) >= 1 {
+				pluginName := strings.TrimPrefix(parts[0], "plugin-")
+				pluginMap[pluginName] = true
+			}
+		}
+	}
+
+	var plugins []AvailablePlugin
+	for name := range pluginMap {
+		plugins = append(plugins, AvailablePlugin{
+			Name:    name,
+			Version: latestVersion,
+		})
+	}
+
+	return plugins, nil
+}
+
+func getLatestVersion() (string, error) {
+	url := fmt.Sprintf("%s/latest", defaultPluginRegistry)
+
+	resp, err := httpGetWithAuth(url)
+	if err != nil {
+		return "", err
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to fetch latest release: %s", resp.Status)
+	}
+
+	var release struct {
+		TagName string `json:"tag_name"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return "", err
+	}
+
+	return release.TagName, nil
+}
+
+func getPluginDownloadURL(pluginName, version string) (string, error) {
+	osName := runtime.GOOS
+	arch := runtime.GOARCH
+
+	// Map arch names to match goreleaser output
+	archName := arch
+	if arch == "amd64" {
+		archName = "x86_64"
+	}
+
+	// Capitalize OS name
+	caser := cases.Title(language.English)
+	osName = caser.String(osName)
+
+	assetName := fmt.Sprintf("plugin-%s_%s_%s.tar.gz", pluginName, osName, archName)
+
+	url := fmt.Sprintf("%s/tags/%s", defaultPluginRegistry, version)
+	resp, err := httpGetWithAuth(url)
+	if err != nil {
+		return "", err
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	var release struct {
+		Assets []struct {
+			Name               string `json:"name"`
+			BrowserDownloadURL string `json:"browser_download_url"`
+			ID                 int    `json:"id"`
+		} `json:"assets"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return "", err
+	}
+
+	for _, asset := range release.Assets {
+		if asset.Name == assetName {
+			return asset.BrowserDownloadURL, nil
+		}
+	}
+
+	return "", fmt.Errorf("plugin '%s' not found for %s/%s in version %s", pluginName, osName, archName, version)
+}
+
+func downloadAndInstallPlugin(pluginName, downloadURL string) error {
+	resp, err := httpGetWithAuth(downloadURL)
+	if err != nil {
+		return err
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download plugin: %s", resp.Status)
+	}
+
+	// Create plugin directory
+	installPath := filepath.Join(pluginDir, pluginName)
+	if err = os.MkdirAll(installPath, 0755); err != nil {
+		return err
+	}
+
+	// Extract tar.gz
+	gzr, err := gzip.NewReader(resp.Body)
+	if err != nil {
+		return err
+	}
+	defer func(gzr *gzip.Reader) {
+		_ = gzr.Close()
+	}(gzr)
+
+	tr := tar.NewReader(gzr)
+
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		target := filepath.Join(installPath, header.Name)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(target, 0755); err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			f, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(header.Mode))
+			if err != nil {
+				return err
+			}
+			if _, err = io.Copy(f, tr); err != nil {
+				err = f.Close()
+				if err != nil {
+					return err
+				}
+				return err
+			}
+			err = f.Close()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func httpGetWithAuth(url string) (*http.Response, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add GitHub token if available (for private repos)
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		req.Header.Set("Authorization", "token "+token)
+	}
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	return http.DefaultClient.Do(req)
+}
+
+func truncate(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen-3] + "..."
+}
+
+// GetInstalledPluginManifest returns the manifest for an installed plugin
+func GetInstalledPluginManifest(pluginName string) (*plugin.Manifest, error) {
+	manifestPath := filepath.Join(pluginDir, pluginName, "manifest.json")
+	data, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var manifest plugin.Manifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		return nil, err
+	}
+
+	return &manifest, nil
 }

@@ -16,7 +16,11 @@ before:
     - go generate ./...
 
 builds:
-  - env:
+  # Main CLI binary
+  - id: neko-cli
+    binary: neko-cli
+    main: ./main.go
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
@@ -29,8 +33,23 @@ builds:
       - -X github.com/nekoman-hq/neko-cli/pkg/version.Date={{.Date}}
       - -X github.com/nekoman-hq/neko-cli/pkg/version.BuiltBy=goreleaser
 
+  # Release plugin
+  - id: plugin-release
+    binary: plugin-release
+    main: ./plugin/release/main.go
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s -w
+
 archives:
-  - formats: [tar.gz]
+  # Main CLI archive
+  - id: neko-cli
+    formats: [tar.gz]
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
@@ -40,6 +59,26 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    # Only include neko-cli build
+    files:
+      - none*
+
+  # Release plugin archive
+  - id: plugin-release
+    formats: [tar.gz]
+    name_template: >-
+      plugin-release_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - src: plugin/release/manifest.json
+        dst: .
     format_overrides:
       - goos: windows
         formats: [zip]

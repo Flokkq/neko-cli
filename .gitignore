@@ -1,7 +1,11 @@
 neko
+neko-cli
+plugin/release/plugin-release
 .env
 .envrc
 .idea
 out
+.DS_Store
+.vscode
 # Added by goreleaser init:
 dist/

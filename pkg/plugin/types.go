@@ -35,16 +35,16 @@ type LogEntry struct {
 }
 
 type ResponseMetadata struct {
+	Timestamp time.Time `json:"timestamp"`
 	Plugin    string    `json:"plugin"`
 	Version   string    `json:"version"`
 	Command   string    `json:"command"`
-	Timestamp time.Time `json:"timestamp"`
 }
 
 type ResponseError struct {
+	Details map[string]any `json:"details,omitempty"`
 	Code    string         `json:"code"`
 	Message string         `json:"message"`
-	Details map[string]any `json:"details,omitempty"`
 }
 
 // Plugin is the interface that all plugins must implement
@@ -76,9 +76,9 @@ type Command struct {
 
 // Flag describes a command flag
 type Flag struct {
+	Default     any    `json:"default,omitempty"`
 	Name        string `json:"name"`
 	Type        string `json:"type"` // "string", "bool", "int"
-	Required    bool   `json:"required"`
-	Default     any    `json:"default,omitempty"`
 	Description string `json:"description"`
+	Required    bool   `json:"required"`
 }

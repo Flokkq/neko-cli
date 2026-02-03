@@ -78,5 +78,5 @@ func writeError(code, message string) {
 			Message: message,
 		},
 	}
-	json.NewEncoder(os.Stdout).Encode(resp)
+	_ = json.NewEncoder(os.Stdout).Encode(resp)
 }
