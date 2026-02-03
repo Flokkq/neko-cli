@@ -323,8 +323,13 @@ func downloadAndInstallPlugin(pluginName, downloadURL string) error {
 		return fmt.Errorf("failed to download plugin: %s", resp.Status)
 	}
 
-	// Create plugin directory
+	// Remove existing plugin directory if it exists
 	installPath := filepath.Join(pluginDir, pluginName)
+	if err = os.RemoveAll(installPath); err != nil {
+		return fmt.Errorf("failed to remove existing plugin: %w", err)
+	}
+
+	// Create plugin directory
 	if err = os.MkdirAll(installPath, 0755); err != nil {
 		return err
 	}
@@ -349,27 +354,35 @@ func downloadAndInstallPlugin(pluginName, downloadURL string) error {
 			return err
 		}
 
-		target := filepath.Join(installPath, header.Name)
+		// Skip empty names or current directory entries
+		name := filepath.Clean(header.Name)
+		if name == "" || name == "." {
+			continue
+		}
+
+		// Get just the base name (in case archive has nested structure)
+		// This flattens any directory structure in the archive
+		baseName := filepath.Base(name)
+		target := filepath.Join(installPath, baseName)
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			if err := os.MkdirAll(target, 0755); err != nil {
+			// Skip directories - we already created installPath
+			continue
+		case tar.TypeReg:
+			// Ensure parent directory exists
+			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return err
 			}
-		case tar.TypeReg:
 			f, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(header.Mode))
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create file %s: %w", target, err)
 			}
 			if _, err = io.Copy(f, tr); err != nil {
-				err = f.Close()
-				if err != nil {
-					return err
-				}
+				_ = f.Close()
 				return err
 			}
-			err = f.Close()
-			if err != nil {
+			if err = f.Close(); err != nil {
 				return err
 			}
 		}

@@ -49,6 +49,8 @@ builds:
 archives:
   # Main CLI archive
   - id: neko-cli
+    ids:
+      - neko-cli
     formats: [tar.gz]
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
@@ -62,12 +64,14 @@ archives:
     format_overrides:
       - goos: windows
         formats: [zip]
-    # Only include neko-cli build
+    # Only include neko-cli build - no extra files
     files:
       - none*
 
   # Release plugin archive
   - id: plugin-release
+    ids:
+      - plugin-release
     formats: [tar.gz]
     name_template: >-
       plugin-release_
@@ -78,7 +82,7 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     files:
       - src: plugin/release/manifest.json
-        dst: .
+        strip_parent: true
     format_overrides:
       - goos: windows
         formats: [zip]
