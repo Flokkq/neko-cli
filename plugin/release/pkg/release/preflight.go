@@ -15,42 +15,37 @@ import (
 func Preflight() {
 	log.PluginV(log.Preflight, "Running pre-flight checks")
 	if err := git.IsClean(); err != nil {
-		errors.Error(
-			"Uncommitted Changes",
+		errors.WriteError(
+			"UNCOMMITTED_CHANGES",
 			err.Error(),
-			errors.ErrDirtyWorkingTree,
 		)
 	}
 
 	if err := git.EnsureNotDetached(); err != nil {
-		errors.Error(
-			"Detached HEAD",
+		errors.WriteError(
+			"DETACHED_HEAD",
 			err.Error(),
-			errors.ErrDetachedHead,
 		)
 	}
 
 	if err := git.OnMainBranch(); err != nil {
-		errors.Error(
-			"Incorrect Branch",
+		errors.WriteError(
+			"INCORRECT_BRANCH",
 			err.Error(),
-			errors.ErrWrongBranch,
 		)
 	}
 
 	if err := git.HasUpstream(); err != nil {
-		errors.Error(
-			"No Upstream Branch",
+		errors.WriteError(
+			"NO_UPSTREAM_BRANCH",
 			err.Error(),
-			errors.ErrNoUpstream,
 		)
 	}
 
 	if err := git.IsUpToDate(); err != nil {
-		errors.Error(
-			"Branch Out of Date",
+		errors.WriteError(
+			"BRANCH_OUT_OF_DATE",
 			err.Error(),
-			errors.ErrBranchBehind,
 		)
 	}
 

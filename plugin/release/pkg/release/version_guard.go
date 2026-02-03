@@ -36,7 +36,7 @@ func EnsureVersionIsValid(cfg *config.NekoConfig, latestTag string) (*semver.Ver
 
 	remoteVer, err := semver.NewVersion(latestTag)
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"Latest Git tag %s is not a valid semantic version, skipping comparison",
 			latestTag,
 		)

@@ -45,6 +45,15 @@ func (d *Dispatcher) Dispatch(ctx context.Context, pluginName string, req plugin
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
+		// Check if stdout contains a valid JSON response (error response from plugin)
+		if stdout.Len() > 0 {
+			var resp plugin.Response
+			if jsonErr := json.Unmarshal(stdout.Bytes(), &resp); jsonErr == nil {
+				// Valid response found, parse logs and return it
+				resp.Logs = parseLogOutput(stderr.String())
+				return &resp, nil
+			}
+		}
 		return nil, fmt.Errorf("plugin execution failed: %w\nStderr: %s", err, stderr.String())
 	}
 

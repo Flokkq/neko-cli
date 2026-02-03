@@ -77,7 +77,7 @@ func (rs *Service) Run(releaseType Type) error {
 	}
 
 	if err := rs.updateConfig(&newVersion); err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"Failed to update local config",
 			fmt.Sprintf("Updating version in .release.neko.json failed. Attempting to proceed with release: %s", err.Error()))
 	}

@@ -26,12 +26,16 @@ var (
 )
 
 func Latest(repoInfo *git.RepoInfo) error {
+	displayCLIVersion()
+
+	if repoInfo == nil {
+		return nil
+	}
+
 	release, err := git.LatestRelease(repoInfo)
 	if err != nil {
 		errors.Warning("No Releases Found", fmt.Sprintf("Repository %s/%s has no releases yet.\n", repoInfo.Owner, repoInfo.Repo))
 	}
-
-	displayCLIVersion()
 
 	if release != nil {
 		displayRelease(repoInfo, release)

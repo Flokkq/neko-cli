@@ -153,7 +153,7 @@ func (r *ReleaseIt) runReleaseItInit(cfg *config.NekoConfig) error {
 	}
 
 	if _, err := os.Stat("package.json"); os.IsNotExist(err) {
-		errors.Warning(
+		errors.WriteWarning(
 			"Project not correctly initialized",
 			"No %s found - this doesn't appear to be a Node.js project",
 		)

@@ -191,7 +191,7 @@ func (g *GoReleaser) runGoReleaserDryRun() error {
 	cmd := exec.Command("goreleaser", "release", "--snapshot", "--clean")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"GoReleaser dry run failed",
 			fmt.Sprintf("This is a warning - proceeding anyway: %s", strings.TrimSpace(string(output))),
 		)

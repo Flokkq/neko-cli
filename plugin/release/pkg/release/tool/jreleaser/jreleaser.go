@@ -274,7 +274,7 @@ func (j *JReleaser) runJReleaserDryRun() error {
 
 	output, err := executeJReleaserCommand(action)
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"JReleaser dry run failed",
 			fmt.Sprintf(
 				"This is a warning - proceeding anyway: %s",

@@ -22,7 +22,7 @@ func LatestTag() string {
 	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"Failed to get latest tag",
 			"No tags found or could not execute git describe.\nUsing default version 0.1.0.",
 		)
@@ -31,7 +31,7 @@ func LatestTag() string {
 
 	outputStr := strings.TrimSpace(string(output))
 	if outputStr == "" {
-		errors.Warning(
+		errors.WriteWarning(
 			"No tags found",
 			"No tags exist in this repository.\nUsing default version 0.1.0.",
 		)
@@ -50,7 +50,7 @@ func GetTags() []string {
 	cmd := exec.Command("git", "tag")
 	tagsOut, err := cmd.Output()
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"Failed to fetch tags",
 			fmt.Sprintf("Command failed: %s", err.Error()),
 		)
@@ -81,7 +81,7 @@ func CountCommitsBetween(from, to string) int {
 
 	out, err := cmd.Output()
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"Failed to count commits",
 			fmt.Sprintf("Command failed for range %s..%s: %s", from, to, err.Error()),
 		)
@@ -91,7 +91,7 @@ func CountCommitsBetween(from, to string) int {
 	countStr := strings.TrimSpace(string(out))
 	count, err := strconv.Atoi(countStr)
 	if err != nil {
-		errors.Warning(
+		errors.WriteWarning(
 			"Failed to parse commit count",
 			fmt.Sprintf("Invalid count value: %s", countStr),
 		)

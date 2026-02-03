@@ -82,3 +82,12 @@ func Error(title, message string, code string) {
 		Code:    code,
 	})
 }
+
+func Fatal(title, message string, code string) {
+	PrintError(CLIError{
+		Level:   ErrorLevelFatal,
+		Title:   title,
+		Message: message,
+		Code:    code,
+	})
+}
